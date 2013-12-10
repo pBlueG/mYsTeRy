@@ -1,0 +1,13 @@
+http://www.weberdev.com/ViewArticle/Writing-Self-Documenting-PHP-Code
+
+There are some fundamental rules you should be aware of when creating these comment blocks:
+
+1. Every comment block must begin with a forward slash (/) followed by two asterisks (**).
+
+2. Subsequent lines begin with an asterisk (*), which is indented to appear under the first asterisk of the opening line.
+
+3. The end of the block is defined by an asterisk (*), followed by a forward slash (/).
+
+Such comment blocks are usually present at both package and module level in Java. Since PHP does not group objects in this way, you don't usually have to worry about these (although you can, if your code is organized according to this convention).
+
+Once you've got the initial comment block set up, PHPDoc lets you add some information to it. This information consists of a single-line description of the item, together with zero or more tags containing further information. The description and tags are separated by a single line containing a single asterisk (*).
