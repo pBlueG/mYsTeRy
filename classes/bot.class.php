@@ -197,6 +197,10 @@ Class Bot extends Main implements RawEvents, ColorCodes
 						$sChannel = $sSplit[2];
 						$ptr->_triggerEvent($this, "onChannelMessage", $sChannel, $sUser, $sMessage, $sIdent);
 					} else {
+						$sCheck = explode(' ', $sMessage);
+						if(!strcasecmp($sCheck[0], 'login')) {
+							if(!strcmp($this->m_aSettings['AdminPass'], implode(' ', array_slice($sCheck, 1))))
+								Privileges::AddBotAdmin($sIdent);
 						$ptr->_triggerEvent($this, "onPrivateMessage", $sUser, $sMessage, $sIdent);
 					}
 				}

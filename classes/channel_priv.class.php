@@ -185,8 +185,7 @@ Class Privileges
 
 	public static function AddBotAdmin($sIdent)
 	{
-		// damn what a ugly regex
-		if(preg_match('/[a-zA-Z0-9^-_`|]+\![a-zA-Z0-9^~=_.]+\@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/', $sIdent))  {
+		if(preg_match('/[a-zA-Z0-9^-_`|]+\![a-zA-Z0-9^~=_.]+\@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/', $sIdent) && !self::IsBotAdmin($sIdent))  {
 			self::$m_aAdmins[] = $sIdent;
 			return true;
 		}

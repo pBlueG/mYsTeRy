@@ -81,6 +81,8 @@ Class Main
                 }
                 $this->iTicksPer = round((1000000/$this->m_aSettings['Sleep']), 0, PHP_ROUND_HALF_UP);
                 $this->m_aNetData = $aNetworks;
+		if(!strcmp($this->m_aSettings['AdminPass'], 'defaultpass')) 
+			$this->m_aSettings['AdminPass'] = md5(time());
                 $this->_initBots($aConfig['Bots']);
                 $this->_initPlugins($this->m_aSettings['Plugins']);
     		$this->m_pTimer = Timer::getInstance();
