@@ -9,7 +9,7 @@
  * @version 2.0a
  */
 
-Class Dcc_Prtcl extends Main
+Class Dcc_Prtcl
 {
 	private $m_RequiredPrivilege = Privileges::LEVEL_VOICE; // Privileges::IsVoiced($channel, $user);
 	private $m_aFileTransfer = array(); // !allowfiletransfer [user/ident] !disallow [user/ident]

@@ -1,8 +1,8 @@
 <?php
 
-require_once('GoogleAPI/Google_Client.php');
+@require_once('GoogleAPI/Google_Client.php');
 
-Class GoogleCommands extends Main
+Class GoogleCommands
 {
 	private $m_sAPIKey = '';
 	// todo (at a later point)

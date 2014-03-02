@@ -9,7 +9,7 @@
  * @version 2.0a
  */
 
-Class Whois extends Main implements RawEvents
+Class Whois implements RawEvents
 {
 	private $m_RequiredPrivilege = Privileges::LEVEL_VOICE;
 	private $m_aRequest = array();

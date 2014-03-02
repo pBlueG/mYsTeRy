@@ -1,6 +1,6 @@
 <?php
 
-Class Away extends Main
+Class Away
 {
 	function __construct()
 	{

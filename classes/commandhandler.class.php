@@ -68,7 +68,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!!',
-				'if(is_array($aParams)) {
+				'if($bot->_isChild()) 
+					return;
+				if(is_array($aParams)) {
 					$sEval = implode(" ", $aParams);
 					ob_start();
 					eval($sEval);
@@ -76,7 +78,7 @@ Class CommandHandler extends Singleton
 					ob_end_flush();
 					$aReturn = array_filter(explode("\n", $sReturn));
 					foreach($aReturn as $sEcho) 
-						$bot->Say($sRecipient, trim($sEcho)));
+						$bot->Say($sRecipient, trim($sEcho));
 				} else {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !! (code)");
 				}',
@@ -85,7 +87,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!addcmd',
-				'if(count($aParams) < 3) {
+				'if($bot->_isChild()) 
+					return;
+				if(count($aParams) < 3) {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !addcmd (command) (privilege) (phpcode)");
 				} else {
 					if($this->_command_exists($aParams[0])) {
@@ -108,7 +112,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!delcmd',
-				'if(count($aParams) < 1) {
+				'if($bot->_isChild()) 
+					return;
+				if(count($aParams) < 1) {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !delcmd (command)");
 				} else {
 					$key = NULL;
@@ -129,7 +135,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!cmds',
-				'$sCmds = NULL;
+				'if($bot->_isChild()) 
+					return;
+				$sCmds = NULL;
 				foreach($this->m_aCommands as $sCmd) {
 					$sCmds .= $sCmd["command"].", ";
 				}
@@ -140,7 +148,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!load',
-				'if(count($aParams) < 1) {
+				'if($bot->_isChild()) 
+					return;
+				if(count($aParams) < 1) {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !load (plugin name)");
 				} else {
 					$ptr = Plugins::getInstance();
@@ -173,7 +183,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!unload',
-				'if(count($aParams) < 1) {
+				'if($bot->_isChild()) 
+					return;
+				if(count($aParams) < 1) {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !unload (plugin name)");
 				} else {
 					$ptr = Plugins::getInstance();
@@ -189,7 +201,9 @@ Class CommandHandler extends Singleton
 			);	
 			$this->_registerCommand(
 				'!plugins',
-				'$sPlugins = NULL;
+				'if($bot->_isChild()) 
+					return;
+				$sPlugins = NULL;
 				$ptr = Plugins::getInstance();
 				reset($ptr->m_aPlugins);
 				while(current($ptr->m_aPlugins)) {
@@ -207,7 +221,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!ident',
-				'$bot->PM(
+				'if($bot->_isChild()) 
+					return;
+				$bot->PM(
 					$sUser, 
 					"Your ident is [i]".$sIdent."[/i]"
 				);',
@@ -216,7 +232,9 @@ Class CommandHandler extends Singleton
 			);
 			$this->_registerCommand(
 				'!mem',
-				'$bot->Say(
+				'if($bot->_isChild()) 
+					return;
+				$bot->Say(
 					$sRecipient, 
 					"Current memory usage is [b]".Misc::formatBytes(memory_get_usage(), "MB")."[/b]"
 				);',
@@ -226,7 +244,7 @@ Class CommandHandler extends Singleton
 			$this->_registerCommand(
 				'!uptime',
 				'$sUptime = time() - $bot->m_aPing["Uptime"];
-				$bot->Say(
+				$bot->PM(
 					$sRecipient, 
 					"I have been up for ".Misc::SecondsToString($sUptime)
 				);',

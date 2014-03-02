@@ -9,7 +9,7 @@
  * @version 2.0a
  */
 
-Class Bot extends Main implements RawEvents, ColorCodes
+Class Bot implements RawEvents, ColorCodes
 {
 	/**
 	 * This array stores the bot information
@@ -153,8 +153,6 @@ Class Bot extends Main implements RawEvents, ColorCodes
 		$sSplit = explode(' ', $in_buffer);
 		if(strtolower($sSplit[0]) == 'ping')
 			$this->_sendCommand('PONG :'.substr($sSplit[1], 1));
-		if($this->_isChild()) 
-			return; // childs shouldnt process data besides playing ping pong
 		$sIdent = substr($sSplit[0], 1);
 		$ptr = Plugins::getInstance();
 		switch(@strtolower($sSplit[1])) {
@@ -166,7 +164,6 @@ Class Bot extends Main implements RawEvents, ColorCodes
 					$this->m_aPing['LastHit'] = time();
 					continue;
 				}
-				//$ptr->_triggerEvent($this, "onNotice", $user, $msg) 
 				$ptr->_triggerEvent($this, "onBotNotice", $sUser, $sMessage, $sIdent);
 				break;
 			}
@@ -198,7 +195,7 @@ Class Bot extends Main implements RawEvents, ColorCodes
 						$ptr->_triggerEvent($this, "onChannelMessage", $sChannel, $sUser, $sMessage, $sIdent);
 					} else {
 						$sCheck = explode(' ', $sMessage);
-						if(!strcasecmp($sCheck[0], 'login')) {
+						if(!strcasecmp($sCheck[0], 'login'))
 							if(!strcmp($this->m_aSettings['AdminPass'], implode(' ', array_slice($sCheck, 1))))
 								Privileges::AddBotAdmin($sIdent);
 						$ptr->_triggerEvent($this, "onPrivateMessage", $sUser, $sMessage, $sIdent);
@@ -213,6 +210,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case 'join': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sChannel = substr($sSplit[2], 1);
 				Privileges::AddUser($sChannel, $sUser);
@@ -220,6 +219,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case 'part': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sChannel = $sSplit[2];
 				if(count($sSplit) > 3)
@@ -231,6 +232,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case 'kick': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sChannel = $sSplit[2];
 				$sVictim = $sSplit[3];
@@ -239,6 +242,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
  			case 'mode': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sChannel = $sSplit[2];
 				$sMode = $sSplit[3]; // +b/+l/+i etc
@@ -251,6 +256,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case 'nick': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sNew = substr($sSplit[2], 1);
 				Privileges::RenameUser($sUser, $sNew);
@@ -258,6 +265,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case 'quit': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sMessage = substr(implode(' ', array_slice($sSplit, 2)), 1);
 				Privileges::RemoveUser(NULL, $sUser);
@@ -265,6 +274,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case 'topic': {
+				if($this->_isChild()) 
+					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sChannel = $sSplit[2];
 				$sTopic = substr(implode(' ', array_slice($sSplit, 3)), 1);
@@ -272,6 +283,8 @@ Class Bot extends Main implements RawEvents, ColorCodes
 				break;
 			}
 			case self::NAMES_LIST: {
+				if($this->_isChild()) 
+					return;
 				$sChannel = $sSplit[4];
 				$sSplit[5] = substr($sSplit[5], 1);
 				$aUsers = array_slice($sSplit, 5);
@@ -295,10 +308,13 @@ Class Bot extends Main implements RawEvents, ColorCodes
 					foreach($this->m_aBotInfo['Channels'] as $Channel)
 						$this->_sendCommand(Commands::Join($Channel));
 					$this->m_bIsConnected = true;
+					$ptr->_triggerEvent($this, "onBotConnect");
 				}
 				break;
 			}
 			default: {
+				if($this->_isChild()) 
+					return;
 				if(is_numeric($sSplit[1])) {
 					$sSplit[3] = substr($sSplit[3], 1);
 					$ptr->_triggerEvent($this, "onRawEvent", $sSplit[1], array_slice($sSplit, 3), $sIdent);

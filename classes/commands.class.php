@@ -116,6 +116,20 @@ Class Commands implements ColorCodes
 			$sCommand .= func_get_arg(0);
 		return $sCommand;
 	}
+
+	public static function Kick($channel, $user, $reason = NULL)
+	{
+		$sCommand = 'KICK '.$channel.' '.$user.' :';
+		if(!is_null($reason))
+			$sCommand .= $reason;
+		return $sCommand;
+	}
+
+	public static function Ban($channel, $user)
+	{
+		$sCommand = 'MODE '.$channel.' +b '.$user;
+		return $sCommand;
+	}
 }
 
 ?>

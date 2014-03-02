@@ -1,6 +1,6 @@
 <?php
 
-Class Test extends Main
+Class Test
 {
 
 	private $count = 0;

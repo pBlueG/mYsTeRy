@@ -28,6 +28,13 @@ require_once('classes/ini.class.php' );
 require_once('classes/timer.class.php');
 require_once('classes/commandhandler.class.php');
 
+/*
+// soon to uncomment
+foreach(glob('classes/*.class.php') as $filename) {
+	require_once($filename);
+}
+*/
+
 $pIni = Ini::getInstance();
 CommandHandler::getInstance();
 Database::getInstance();
@@ -51,7 +58,7 @@ foreach($g_aConfig['General']['Admins'] as $sAdmin) {
 		Log::Error('>> Invalid ident format -> '.$sAdmin);
 }
 
-$gHandler = new Main($g_aConfig, $g_aNetworks);
+$gHandler = Main::getInstance($g_aConfig, $g_aNetworks);
 $iSleep = $g_aConfig['General']['Sleep'];
 
 while(true) {

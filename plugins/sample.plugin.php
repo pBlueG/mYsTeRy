@@ -10,7 +10,7 @@
  *
  */
 
-Class Sample extends Main
+Class Sample
 {
 
 

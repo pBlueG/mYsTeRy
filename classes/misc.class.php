@@ -12,6 +12,7 @@
 
 Class Misc
 {
+	// formats seconds to a readable string e.g. 5 days, 2 hours, 10 minutes and 10 seconds
 	public function SecondsToString($seconds)
 	{
 		$sFormat = NULL;
@@ -44,6 +45,16 @@ Class Misc
 		return $sFormat;
 	}
 
+	public function glueParams($string, $delimiter = ' ')
+	{
+		return explode($delimiter, $string);
+	}
+
+	public function isChannel($string)
+	{
+		return (substr($string, 0, 1) == '#' && strlen($string) > 1);
+	}
+
 	// (c) http://www.if-not-true-then-false.com/2009/format-bytes-with-php-b-kb-mb-gb-tb-pb-eb-zb-yb-converter/
 	public function formatBytes($bytes, $unit = "", $decimals = 2) 
 	{
@@ -61,6 +72,7 @@ Class Misc
 		}
 		return sprintf('%.' . $decimals . 'f '.$unit, $value);
   	}
+
 
 }
 

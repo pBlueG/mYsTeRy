@@ -15,8 +15,7 @@ Class Log
 
 	public final function Error($log)
 	{
-		if($this->m_bLog)
-			return file_put_contents( 'logs/error.log', $log . PHP_EOL, FILE_APPEND );
+		return file_put_contents( 'logs/error.log', $log . PHP_EOL, FILE_APPEND );
 	}
 
 	public final function DebugHandler($errno, $errstr, $errfile, $errline, $errcontext)
@@ -49,9 +48,9 @@ Class Log
 	}
 
 
-	public final function Log($filename, $data)
+	public final function _Log($filename, $data, $timestamp = NULL)
 	{
-		return file_put_contents('logs/'.$filename.'.log', $data . PHP_EOL, FILE_APPEND);
+		return file_put_contents($filename.'.log', (is_null($timestamp) ? $data : $timestamp.$data) . PHP_EOL, FILE_APPEND);
 	}
 }	
 

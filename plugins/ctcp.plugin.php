@@ -9,7 +9,7 @@
  * @version 2.0a
  */
 
-Class Ctcp extends Main
+Class Ctcp
 {
 	function __construct()
 	{
@@ -21,25 +21,19 @@ Class Ctcp extends Main
 		// common CTCP requests
 		switch($request) {
 			case 'VERSION': {
-				$bot->_sendCommand(
-					Commands::Notice($user, 'Running mYsTeRy '.REVISION)
-				);
+				$bot->Notice($user, 'Running mYsTeRy '.REVISION);
 				break;
 			}
 			case 'PING': {
 				$current = NULL;
 				if(is_numeric($message))
 					$current = round(microtime(true)-floatval($message), 2);
-				$bot->_sendCommand(
-					Commands::Notice($user, 'reply took '.$current.'s')
-				);
+				$bot->Notice($user, 'reply took '.$current.'s');
 				break;
 			}
 			case 'TIME': {
 				$sTime = date('l, d. F, H:i:s');
-				$bot->_sendCommand(
-					Commands::Notice($user, $sTime)
-				);
+				$bot->Notice($user, $sTime);
 				break;
 			}
 			default:

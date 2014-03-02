@@ -9,7 +9,7 @@
  * @version 2.0
  */
 
-Class Main
+Class Main extends Singleton
 {
 	/**
 	 * This array stores the bot instances
@@ -17,7 +17,7 @@ Class Main
 	 * @var array
 	 * @access private
 	 */
-	private $m_aBots = array();
+	protected $m_aBots = array();
 
 	/**
 	 * This array stores the network data
@@ -87,7 +87,6 @@ Class Main
                 $this->_initPlugins($this->m_aSettings['Plugins']);
     		$this->m_pTimer = Timer::getInstance();
 		$this->m_pTimer->_add($this, "_pingCheck", 0, $this->m_aSettings['Ping'], true);
-		Plugins::getInstance()->_triggerEvent($this, "onBotConnect");
 	}
 
 	/**
@@ -195,22 +194,14 @@ Class Main
 	{
 		$iCurrent = time();
 		foreach($this->m_aBots as $pFamilyMember) {
+			echo "Hi Loop";
 			if($pFamilyMember->_isConnected()) {
 				if(($iCurrent-$pFamilyMember->_getLastPing()) > ($this->m_aSettings['Ping']+15)) {
+					// TODO
 					// bot has most likely timed out
-					echo "Bot has died. Goodbye my friend o/".PHP_EOL;
 				}
 			}
 		}	
-	}
-
-	/**
-	 * This function will be used to pass a bot object to the plugins
-	 * @return object
-	 */
-	protected function _get_random_bot_obj($onlychilds = false)
-	{
-		// TODO
 	}
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-Class DamianC extends Main
+Class DamianC
 {
 	public function __construct()
 	{
