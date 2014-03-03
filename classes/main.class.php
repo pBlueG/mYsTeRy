@@ -194,7 +194,6 @@ Class Main extends Singleton
 	{
 		$iCurrent = time();
 		foreach($this->m_aBots as $pFamilyMember) {
-			echo "Hi Loop";
 			if($pFamilyMember->_isConnected()) {
 				if(($iCurrent-$pFamilyMember->_getLastPing()) > ($this->m_aSettings['Ping']+15)) {
 					// TODO

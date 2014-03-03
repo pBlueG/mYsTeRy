@@ -25,13 +25,6 @@ Class SAMPEcho extends Main
 		$this->m_pConfig = Ini::getInstance()->_getConfig('configuration/sa-mp.echo.ini', 'Echo');
 		$this->m_sFile = $this->m_pConfig['file_directory'].$this->m_pConfig['file_name'];
 		$this->m_bCheck = file_exists($this->m_sFile);
-		if($this->m_bCheck) {
-			// file pointer set to end, otherwise the bot will read the whole echo file
-			$this->m_lastPos = filesize($this->m_sFile);
-			$f = fopen($this->m_sFile, "r");
-			fseek($f, $this->m_lastPos, SEEK_END);
-			fclose($f);
-		}
 		if($this->m_pConfig['child_bots'] > 0) {
 			for($idx = 0; $idx < $this->m_pConfig['child_bots'];$idx++) {
 				$sNick = sprintf($this->m_pConfig['child_name'].$this->m_pConfig['child_prefix'], ($idx+1));
@@ -40,7 +33,7 @@ Class SAMPEcho extends Main
 					$sNick.'`', 
 					$sNick, 
 					'Echo Bot',
-					'', 
+					'password', 
 					array($this->m_pConfig['echo_channel']), 
 					array(), 
 					$this->m_pConfig['Network']
@@ -49,7 +42,8 @@ Class SAMPEcho extends Main
 				$this->m_childIndex[] = key(Main::getInstance()->m_aBots);
 			}
 		}
-		$this->m_bEcho = true;
+		if($this->m_pConfig['auto_start'])
+			$this->_enableEcho();
 	}
 
 	public function __destruct()
@@ -64,6 +58,19 @@ Class SAMPEcho extends Main
 	{
 		$rand = array_rand($this->m_childIndex);
 		return Main::getInstance()->m_aBots[$this->m_childIndex[$rand]];
+	}
+		
+	private function _enableEcho()
+	{
+		if(file_exists($this->m_sFile)) {
+			$this->m_lastPos = filesize($this->m_sFile);
+			$f = fopen($this->m_sFile, "r");
+			fseek($f, $this->m_lastPos, SEEK_END);
+			fclose($f);
+			$this->m_bEcho = true;
+			return true;
+		}
+		return false;
 	}
 
 	public function onTick()
@@ -97,10 +104,71 @@ Class SAMPEcho extends Main
 
 	public function onCommand($bot, $command, $params, $user, $recipient, $ident)
 	{
-		if($bot->isChild())
+		if($bot->_isChild() || strcasecmp($recipient, $this->m_pConfig['echo_channel']) != 0) // we dont want our childs to handle any commands
 			return;
 		switch($command) {
-			// TODO
+			case '!echo':
+				if(Privileges::IsBotAdmin($ident)) {
+					if(count($params) < 1) {
+						$bot->Say($recipient, '[b][color=red]Syntax:[/color][/b] !echo [on/off]');
+					} else {
+						if(!file_exists($this->m_sFile))
+							return $bot->Say($recipient, '[color=red]Error:[/color] Path to scriptfiles is invalid ('.$this->m_pConfig['file_directory'].')');
+						else if(!strcasecmp($params[0], 'on'))
+							$this->_enableEcho();
+						else if(!strcasecmp($params[0], 'off'))
+							$this->m_bEcho = false;
+						else
+							$bot->Say($recipient, '[b][color=green]Syntax:[/color][/b] !echo [on/off]');
+					}
+				}
+				break;
+			case '!say':
+				if(count($params) > 0 && $this->m_bEcho) {
+					$sMessage = '[msg] '.$user.' on IRC: '.implode(' ', $params);
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage);
+				}
+				break;	
+			case '!players':
+				if(count($params) > 0 && $this->m_bEcho) {
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], "[players]\r\n");
+				}
+				break;
+			case '!pm':
+				if($this->m_bEcho) {
+					if(count($params) < 2)
+						return $bot->Say($recipient, '[b][color=red]Syntax:[/color][/b] !pm [playerid/name] [message]');
+					$sMessage = sprintf("[pm] %s %s %s\r\n", $params[0], $user, implode(' ', array_slice($params, 1)));
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage, FILE_APPEND);
+				}
+				break;
+			case '!kick':
+				if($this->m_bEcho && (Privileges::IsOperator($user, $recipient) || Privileges::IsBotAdmin($ident))) {
+					if(count($params) < 1)
+						return $bot->Say($recipient, '[b][color=red]Syntax:[/color][/b] !kick [playerid/name] [reason (optional)]');
+					$sMessage = sprintf("[kick] %s %s %s\r\n", $params[0], $user, implode(' ', array_slice($params, 1)));
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage, FILE_APPEND);
+				}
+				break;
+			case '!ban':
+				if($this->m_bEcho && (Privileges::IsOperator($user, $recipient) || Privileges::IsBotAdmin($ident))) {
+					if(count($params) < 1)
+						return $bot->Say($recipient, '[b][color=red]Syntax:[/color][/b] !ban [playerid/name] [reason (optional)]');
+					$sMessage = sprintf("[ban] %s %s %s\r\n", $params[0], $user, implode(' ', array_slice($params, 1)));
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage, FILE_APPEND);
+				}
+				break;
+			case '!rcon':
+				if($this->m_bEcho && Privileges::IsBotAdmin($ident)) {
+					if(count($params) < 1)
+						return $bot->Say($recipient, '[b][color=red]Syntax:[/color][/b] !rcon [command]');
+					$sMessage = sprintf("[rcon] %s\r\n", implode(' ', $params));
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage, FILE_APPEND);
+				}
+				break;
+			default:
+				break;
+					
 		}
 			
 	}
