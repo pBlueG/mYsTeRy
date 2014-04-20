@@ -195,9 +195,15 @@ Class Bot implements RawEvents, ColorCodes
 						$ptr->_triggerEvent($this, "onChannelMessage", $sChannel, $sUser, $sMessage, $sIdent);
 					} else {
 						$sCheck = explode(' ', $sMessage);
-						if(!strcasecmp($sCheck[0], 'login'))
-							if(!strcmp($this->m_aSettings['AdminPass'], implode(' ', array_slice($sCheck, 1))))
+						if(!strcasecmp($sCheck[0], 'login') && !Privileges::IsBotAdmin($sIdent)) {
+							if(!strcmp(Main::getInstance()->m_aSettings['AdminPass'], implode(' ', array_slice($sCheck, 1)))) {
 								Privileges::AddBotAdmin($sIdent);
+								$this->PM($sUser, ">> You have been successfully identified");
+							} else {
+								// todo: log invalid attempts and black after a certain amount of invalid tries
+								$this->PM($sUser, ">> Invalid login attempt. Ident has been logged.");
+							}
+						}
 						$ptr->_triggerEvent($this, "onPrivateMessage", $sUser, $sMessage, $sIdent);
 					}
 				}

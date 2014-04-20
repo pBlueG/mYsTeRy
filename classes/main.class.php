@@ -49,7 +49,7 @@ Class Main extends Singleton
 	 * @var array
 	 * @access protected
 	 */
-	protected $m_aSettings;
+	public $m_aSettings;
 
 	/**
 	 * An integer used to determine the tick amount per second
