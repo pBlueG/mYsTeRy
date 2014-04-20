@@ -45,15 +45,18 @@ Class Timer extends Singleton
 			if(method_exists($class_name, $function) && @is_callable(array($class_name, $function))) {
 				$hittime = time()+$interval;
 				$this->m_aTimer[] = array(
-					'Class' => $obj,
-					'Function' => $function,
-					'Arguments' => $args,
-					'Interval' => $interval,
-					'Repeat' => $repeat,
-					'Hit' => $hittime
+					'Class' 	=> $obj,
+					'Function' 	=> $function,
+					'Arguments' 	=> $args,
+					'Interval' 	=> $interval,
+					'Repeat' 	=> $repeat,
+					'Hit' 		=> $hittime
 				);
-				$this->m_aTimer = array_values($this->m_aTimer);
-				return true;
+				//$this->m_aTimer = array_values($this->m_aTimer);
+				end($this->m_aTimer);
+				$retID = key($this->m_aTimer);
+				reset($this->m_aTimer);
+				return $retID;
 			}
 		}
 		return false;
@@ -66,17 +69,13 @@ Class Timer extends Singleton
 	 * @param string $function Function to delete
 	 * @access public
 	 */
-	public function _delete($function)
+	public function _delete($id)
 	{
-		$size = count($this->m_aTimer);
-		for($idx = 0; $idx < $size; $idx++) {
-			if(isset($this->m_aTimer[$idx])) {
-				if(!strcmp($function, $this->m_aTimer[$idx]['Function']))
-					unset($this->m_aTimer[$idx]);
-				
-			}
+		if(isset($this->m_aTimer[$id])) {
+			unset($this->m_aTimer[$id]);
+			return true;
 		}
-		$this->m_aTimer = array_values($this->m_aTimer);
+		return false;
 	}
 
 	/**
@@ -87,40 +86,28 @@ Class Timer extends Singleton
 	public function _update()
 	{
 		$current = time();
-		$size = count($this->m_aTimer);
-		//foreach($this->m_aTimer as &$Timer) {
-		for($idx = 0; $idx < $size; $idx++) {	
-			if(isset($this->m_aTimer[$idx])) {
-				if($this->m_aTimer[$idx]['Hit'] <= $current) {
-					/*if(is_array($this->m_aTimer[$idx]['Arguments']) && @count($this->m_aTimer[$idx]['Arguments']) > 0)
-						call_user_func_array(array($this->m_aTimer[$idx]['Class'], $this->m_aTimer[$idx]['Function']), $this->m_aTimer[$idx]['Arguments']);
-					else
-						call_user_func(array($this->m_aTimer[$idx]['Class'], $this->m_aTimer[$idx]['Function']));*/
-					$pMethod = new ReflectionMethod($this->m_aTimer[$idx]['Class'], $this->m_aTimer[$idx]['Function']);
-					if($pMethod->isPrivate() || $pMethod->isProtected())
-						$pMethod->setAccessible(true);
-					if(is_array($this->m_aTimer[$idx]['Arguments']) && @count($this->m_aTimer[$idx]['Arguments']) > 0)
-						$pMethod->invokeArgs(
-							(is_object($this->m_aTimer[$idx]['Class']) ? $this->m_aTimer[$idx]['Class'] : NULL),
-							$this->m_aTimer[$idx]['Arguments']
-						);
-					else
-						$pMethod->invoke(
-							(is_object($this->m_aTimer[$idx]['Class']) ? $this->m_aTimer[$idx]['Class'] : NULL)
-						);
-					unset($pMethod);
-					if($this->m_aTimer[$idx]['Repeat'])
-						$this->m_aTimer[$idx]['Hit'] = time()+$this->m_aTimer[$idx]['Interval'];
-					else {
-						unset($this->m_aTimer[$idx]);
-						$this->m_aTimer = array_values($this->m_aTimer); // re-index the array
-					}
-					if($size > 1)
-						$idx--;
-				}
+		foreach($this->m_aTimer as $idx => $Timer) {
+			if($Timer['Hit'] <= $current) {
+				$pMethod = new ReflectionMethod($Timer['Class'], $Timer['Function']);
+				if($pMethod->isPrivate() || $pMethod->isProtected())
+					$pMethod->setAccessible(true);
+				if(is_array($Timer['Arguments']) && @count($Timer['Arguments']) > 0)
+					$pMethod->invokeArgs(
+						(is_object($Timer['Class']) ? $Timer['Class'] : NULL),
+						$Timer['Arguments']
+					);
+				else
+					$pMethod->invoke(
+						(is_object($Timer['Class']) ? $Timer['Class'] : NULL)
+					);
+				unset($pMethod);
+				if($Timer['Repeat'])
+					$this->m_aTimer[$idx]['Hit'] = time()+$Timer['Interval'];
+				else 
+					$this->_delete($idx);
+
 			}
 		}
-		
 	}
 }
 
