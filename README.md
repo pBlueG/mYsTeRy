@@ -14,9 +14,8 @@ configuration/general.cfg
 
 configuration/networks/
 
-How to define a new network:
+How to define a new network (required file format):
 
-Format
 	[Network]
 	Name = Networkname			# Case sensitive string
 	SSL = false				# boolean (alt)
