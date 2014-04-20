@@ -24,6 +24,8 @@ Format
 	Port = 6667				# integer
 	Servers[] = "irc.network.address"	# Array set of strings
 
+The filename does not matter.
+
 
 
 **-- Bot Configuration:**
