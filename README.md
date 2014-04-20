@@ -4,13 +4,13 @@ mYsTeRy PHP Bot
 Once you have configured the bot, execute run_win32.bat (windows) or run_unix.ssh (linux).
 
 
--- General Configuration:
+** -- General Configuration: **
 
 configuration/general.cfg
 
 
 
--- Network Configuration:
+** -- Network Configuration: **
 
 configuration/networks/
 
@@ -26,7 +26,7 @@ Format
 
 
 
--- Bot Configuration:
+** -- Bot Configuration: **
 
 configuration/bots/
 
@@ -52,7 +52,7 @@ within the bots/ folder.
 
 
 
--- Commands:
+** -- Commands: **
 
 The bot has built in commands to fully control the bot. (admin privileges required)
 
@@ -74,7 +74,7 @@ These commands
 
 
 
--- Admin authentication:
+** -- Admin authentication: **
 
 You will need admin privileges to control the bot and run commands. There
 are two ways to identify as administrator:
