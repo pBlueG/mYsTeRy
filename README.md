@@ -1,4 +1,4 @@
-mYsTeRy PHP Bot
+mYsTeRy IRC PHP Bot
 =======
 
 Once you have configured the bot, execute run_win32.bat (windows) or run_unix.ssh (linux).

@@ -6,8 +6,14 @@
 #define COLOR 0xFFFFFF
 #define MAX_IRC_NAME 30 //FFSNetwork NICKLEN=30
 #define IRC_ACTION_FILE "commands.txt"
+#define NULL 0
 
-new g_maxPlayers;
+#define isnull(%1) \
+    ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+
+new g_maxPlayers,
+	seekPosition = 0,
+	File:log;
 
 public ReadActions();
 
@@ -65,12 +71,19 @@ new aWeaponNames[][32] = {
 public OnFilterScriptInit()
 {
 	WriteEcho("[color=blue][--] [color=black]Server is now [color=green]online.");
-	if(fexist(IRC_ACTION_FILE))
-		fremove(IRC_ACTION_FILE);
-	SetTimer("ReadActions", 1500, 1);
+	if(fexist(IRC_ACTION_FILE)) {
+	    new iLen, dummy[128];
+	    log = fopen(IRC_ACTION_FILE, io_read);
+	    while((iLen = fread(log, dummy)))
+	        seekPosition += iLen;
+		fclose(log);
+	}
+	SetTimer("ProcessIRCRequests", 2000, true);
 	g_maxPlayers = GetMaxPlayers();
 	return 1;
 }
+
+
 
 stock GetPlayerCount()
 {
@@ -82,7 +95,8 @@ stock GetPlayerCount()
 	return pCount;
 }
 
-public ReadActions()
+public ProcessIRCRequests();
+public ProcessIRCRequests()
 {
 	new
 		string[256],
@@ -92,72 +106,77 @@ public ReadActions()
 		admin[MAX_IRC_NAME],
 		playerid,
 		pName[MAX_PLAYER_NAME],
-		message[128];
-		
+		message[128],
+		sLen;
 	if(fexist(IRC_ACTION_FILE)) {
-	    new File:handle = fopen(IRC_ACTION_FILE, io_read);
-		fread(handle, string);
-		fclose(handle);
-		action = strtok(string, idx);
-		if(!strcmp(action, "[rcon]", true))
-			SendRconCommand(strrest(string, idx));
-		if(!strcmp(action, "[kick]", true)) {
-			playerid = ReturnUser(strtok(string, idx));
-			admin = strtok(string, idx);
-			reason = strrest(string, idx);
-			if(IsPlayerConnected(playerid)) {
-			    GetPlayerName(playerid, pName, sizeof pName);
-			    if(strlen(reason) > 0)
-					format(string, sizeof string, ">> %s has been kicked by IRC Admin %s (Reason: %s)", pName, admin, reason);
-				else
-					format(string, sizeof string, ">> %s has been kicked by IRC Admin %s", pName, admin);
-				Kick(playerid);
-				SendClientMessageToAll(COLOR, string);
-				WriteEcho(string);
-			}
-		}
-		if(!strcmp(action, "[msg]", true)) {
-		    SendClientMessageToAll(COLOR, strrest(string, idx));
-		}
-		if(!strcmp(action, "[players]", true)) {
-		    new pCount, szPlayers[800], sName[MAX_PLAYER_NAME+8];
-		    format(szPlayers, sizeof szPlayers, "[b]Current players (%d):[/b] ", GetPlayerCount());
-		    for(new i;i < g_maxPlayers;i++) {
-		        if(IsPlayerConnected(i)) {
-		            pCount++;
-		            GetPlayerName(playerid, pName, MAX_PLAYER_NAME);
-		            format(sName, sizeof sName, "[%d] %s,", playerid, pName);
-		            strcat(szPlayers, sName);
-					if(pCount >= 25) {
-					    strcat(szPlayers, " [..]");
-					    break;
+	    log = fopen(IRC_ACTION_FILE, io_read);
+		fseek(log, seekPosition, seek_start);
+		while((sLen = fread(log, string))) {
+		    if(!isnull(string)) {
+				trim(string);
+		  		seekPosition += sLen;
+				action = strtok(string, idx);
+				if(!strcmp(action, "[rcon]", true))
+					SendRconCommand(strrest(string, idx));
+				if(!strcmp(action, "[kick]", true)) {
+					playerid = ReturnUser(strtok(string, idx));
+					admin = strtok(string, idx);
+					reason = strrest(string, idx);
+					if(IsPlayerConnected(playerid)) {
+					    GetPlayerName(playerid, pName, sizeof pName);
+					    if(strlen(reason) > 0)
+							format(string, sizeof string, ">> %s has been kicked by IRC Admin %s (Reason: %s)", pName, admin, reason);
+						else
+							format(string, sizeof string, ">> %s has been kicked by IRC Admin %s", pName, admin);
+						Kick(playerid);
+						SendClientMessageToAll(COLOR, string);
+						WriteEcho(string);
 					}
 				}
+				if(!strcmp(action, "[msg]", true))
+				    SendClientMessageToAll(COLOR, strrest(string, idx));
+				if(!strcmp(action, "[players]", true)) {
+				    new pCount, szPlayers[800], sName[MAX_PLAYER_NAME+8];
+		  			format(szPlayers, sizeof szPlayers, "[b]Current players (%d):[/b] ", GetPlayerCount());
+				    for(new i;i < g_maxPlayers;i++) {
+		      			if(IsPlayerConnected(i)) {
+		         			pCount++;
+		            		GetPlayerName(playerid, pName, MAX_PLAYER_NAME);
+		            		format(sName, sizeof sName, "[%d] %s,", playerid, pName);
+				            strcat(szPlayers, sName);
+							if(pCount >= 25) {
+			    				strcat(szPlayers, " [..]");
+							    break;
+							}
+						}
+					}
+				}
+				if(!strcmp(action, "[pm]", true)) {
+				    playerid = ReturnUser(strtok(string, idx));
+				    admin = strtok(string, idx);
+					format(message, sizeof message, "PM from %s on IRC: %s", admin, strrest(string, idx));
+					if(IsPlayerConnected(playerid))
+					    SendClientMessage(playerid, COLOR, message);
+				}
+				if(!strcmp(action, "[ban]", true)) {
+					playerid = ReturnUser(strtok(string, idx));
+					admin = strtok(string, idx);
+					reason = strrest(string, idx);
+					if(IsPlayerConnected(playerid)) {
+		   				GetPlayerName(playerid, pName, sizeof pName);
+					    if(strlen(reason) > 0)
+							format(string, sizeof string, ">> %s has been banned by IRC Admin %s (Reason: %s)", pName, admin, reason);
+						else
+							format(string, sizeof string, ">> %s has been banned by IRC Admin %s", pName, admin);
+						Ban(playerid);
+						SendClientMessageToAll(COLOR, string);
+						WriteEcho(string);
+					}
+				}
+				idx = 0;
 			}
 		}
-		if(!strcmp(action, "[pm]", true)) {
-		    playerid = ReturnUser(strtok(string, idx));
-		    admin = strtok(string, idx);
-			format(message, sizeof message, "PM from %s on IRC: %s", admin, strrest(string, idx));
-			if(IsPlayerConnected(playerid))
-			    SendClientMessage(playerid, COLOR, message);
-		}
-		if(!strcmp(action, "[ban]", true)) {
-			playerid = ReturnUser(strtok(string, idx));
-			admin = strtok(string, idx);
-			reason = strrest(string, idx);
-			if(IsPlayerConnected(playerid)) {
-			    GetPlayerName(playerid, pName, sizeof pName);
-			    if(strlen(reason) > 0)
-					format(string, sizeof string, ">> %s has been banned by IRC Admin %s (Reason: %s)", pName, admin, reason);
-				else
-					format(string, sizeof string, ">> %s has been banned by IRC Admin %s", pName, admin);
-				Ban(playerid);
-				SendClientMessageToAll(COLOR, string);
-				WriteEcho(string);
-			}
-		}
-		fremove(IRC_ACTION_FILE);
+		fclose(log);
 	}
 	return 1;
 }
@@ -178,13 +197,13 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason)
 {
-    new string[256], R[20];
+    new string[256], sReason[20];
 	switch(reason) {
-	    case 0: R = "Timeout";
-	    case 1: R = "Leaving";
-	    case 2: R = "Kicked/Banned";
+	    case 0: format(sReason, sizeof sReason, "Timeout");
+	    case 1: format(sReason, sizeof sReason, "Leaving");
+	    case 2: format(sReason, sizeof sReason, "Kicked/Banned");
 	}
-	format(string, sizeof string, "[b][%d][/b][color=grey] *** %s has left the server (%s)", playerid, Playername(playerid), R);
+	format(string, sizeof string, "[b][%d][/b][color=grey] *** %s has left the server (%s)", playerid, Playername(playerid), sReason);
 	WriteEcho(string);
 	return 1;
 }
@@ -227,6 +246,15 @@ Playername(playerid)
 	new pName[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, pName, sizeof pName);
 	return pName;
+}
+
+stock trim(string[])
+{
+	for(new i, a = strlen(string);i < a;i++)
+	{
+	    if(string[i] == '\r' || string[i] == '\n')
+			string[i] = NULL;
+	}
 }
 
 IsNumeric(const string[])
