@@ -229,7 +229,7 @@ public OnPlayerText(playerid, text[])
 
 WriteEcho(string[])
 {
-    new File:handle,
+	new File:handle,
         fileStr[256];
 	format(fileStr, sizeof fileStr, "%s\r\n", string);
 	if(fexist("echo.txt"))

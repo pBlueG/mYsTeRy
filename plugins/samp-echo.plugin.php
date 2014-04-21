@@ -114,15 +114,28 @@ Class SAMPEcho extends Main
 					} else {
 						if(!file_exists($this->m_sFile))
 							return $bot->Say($recipient, '[color=red]Error:[/color] Path to scriptfiles is invalid ('.$this->m_pConfig['file_directory'].')');
-						else if(!strcasecmp($params[0], 'on'))
+						else if(!strcasecmp($params[0], 'on')) {
 							$this->_enableEcho();
-						else if(!strcasecmp($params[0], 'off'))
+							return $bot->Say($recipient, '>> Channel Echo has been turned [color=green]on[/color].');
+						}
+						else if(!strcasecmp($params[0], 'off')) {
 							$this->m_bEcho = false;
+							return $bot->Say($recipient, '>> Channel Echo has been turned [color=red]off[/color].');
+						}
 						else
-							$bot->Say($recipient, '[b][color=green]Syntax:[/color][/b] !echo [on/off]');
+							return $bot->Say($recipient, '[b][color=green]Syntax:[/color][/b] !echo [on/off]');
 					}
 				}
 				break;
+			case '!tickrate':
+				if(Privileges::IsBotAdmin($ident)) {
+					if(count($params) < 1 || !is_numeric($params[0])) {
+						$bot->Say($recipient, '[b][color=red]Syntax:[/color][/b] !tickrate [ticks until echo (at least 10)]');
+					} else {
+						$this->m_pConfig['ticks_echo'] = $params[0];
+						$bot->Say($recipient, ">> Tickrate has been changed");
+					}
+				}
 			case '!say':
 				if(count($params) > 0 && $this->m_bEcho) {
 					$sMessage = '[msg] '.$user.' on IRC: '.implode(' ', $params);

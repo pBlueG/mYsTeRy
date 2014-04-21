@@ -88,7 +88,7 @@ Class Main extends Singleton
     		$this->m_pTimer = Timer::getInstance();
 		$this->m_pTimer->_add($this, "_pingCheck", 0, $this->m_aSettings['Ping'], true);
 	}
-
+	
 	/**
 	 * A function to load all plugins which are listed in the settings file
 	 *

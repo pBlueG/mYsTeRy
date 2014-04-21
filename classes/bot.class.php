@@ -17,7 +17,7 @@ Class Bot implements RawEvents, ColorCodes
 	 * @var array
 	 * @access private
 	 */
-	private $m_aBotInfo = array();
+	public $m_aBotInfo = array();
 
 	/**
 	 * This array stores the network info for the given bot
