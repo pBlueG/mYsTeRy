@@ -1,25 +1,57 @@
 mYsTeRy IRC PHP Bot
 =======
 
-Once you have configured the bot, execute run_win32.bat (windows) or run_unix.ssh (linux).
+The following short instruction will show you how to configure the IRC bot. Once the bot is configured, you can run the bot via the enclosed run_(win32.bat|unix.ssh) files. You'll need PHP installed to run the bot.
+
+### Directory hierarchy
+
+- mYsTeRy-v2.0a/
+	- /classes/
+	- /configuration/
+		- /bots/
+		- /networks/
+	- /database/
+	- /interfaces/
+	- /logs/
+	- /pawn/
+	- /plugins/
+	- /ssl/
+       	
 
 
-**-- General Configuration:**
+### General Configuration:
 
-configuration/general.cfg
+> /configuration/general.cfg
+
+	[General]
+	SQLite 		= on 				# requires the php_sqlite3.(dll|so) module
+	MySQL 		= off 				# see mysql.ini for host/user/db config
+	AdminPass 	= testicle 			# specifies the password to get recognised as bot admin -> /msg BotNickname login password
+	Admins[] 	= "BlueG!i.am@out.of.reach" 	# adding your ident allows you to get recognised as administrator without login
+	;Admins[] 	= "your!ident@hostname.com" 	# format: nickname!ident@hostname
+	Logging 	= on 				# specifies whether all channel messages get logged
+	Sleep 		= 40000				# specifies the sleep time of the bot = 1mio/sleeptime => ticks per second (1000000/40000 = 25 ticks)
+	Prefix 		= "!" 				# command prefix
+	Ping 		= 45 				# specifies the bot ping timeout check in seconds
+	# plugins loaded on startup, use !load/!unload when the bot is connected 	
+	Plugins[] 	= ctcp
+	Plugins[] 	= dcc
+	Plugins[]	= "auto_perform"
 
 
 
-**-- Network Configuration:**
 
-configuration/networks/
+
+### Network Configuration:
+
+> /configuration/networks/
 
 How to define a new network (required file format):
 
 	[Network]
-	Name = Networkname			# Case sensitive string
+	Name = Networkname		# Case sensitive string
 	SSL = false				# boolean (alt)
-	SSL_CRT = ""				# case sensitive string (alt)
+	SSL_CRT = ""			# case sensitive string (alt)
 	Port = 6667				# integer
 	Servers[] = "irc.network.address"	# Array set of strings
 
@@ -27,9 +59,9 @@ The filename does not matter.
 
 
 
-**-- Bot Configuration:**
+### Bot Configuration:
 
-configuration/bots/
+> /configuration/bots/
 
 How to create a new bot:
 
@@ -53,7 +85,7 @@ within the bots/ folder.
 
 
 
-**-- Commands:**
+### Commands:
 
 The bot has built in commands to fully control the bot. (admin privileges required)
 
@@ -74,7 +106,7 @@ The bot has built in commands to fully control the bot. (admin privileges requir
 
 
 
-**-- Admin authentication:**
+### Admin authentication:
 
 You will need admin privileges to control the bot and run commands. There
 are two ways to identify as administrator:
