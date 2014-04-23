@@ -322,7 +322,7 @@ Class Bot implements RawEvents, ColorCodes
 				if($this->_isChild()) 
 					return;
 				if(is_numeric($sSplit[1])) {
-					$sSplit[3] = substr($sSplit[3], 1);
+					//$sSplit[3] = substr($sSplit[3], 1);
 					$ptr->_triggerEvent($this, "onRawEvent", $sSplit[1], array_slice($sSplit, 3), $sIdent);
 				}
 				break;

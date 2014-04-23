@@ -130,7 +130,7 @@ Class ChannelLog
 	public function onChannelMode($bot, $channel, $user, $mode, $option, $ident)
 	{ 
 		if(in_array(strtolower($channel), $this->m_aChannels)) {
-			$szFormat = sprintf('%s %s sets mode %s %s', date('[H:i:s]'), $user, $mode, $option);
+			$szFormat = sprintf('%s * %s sets mode %s %s', date('[H:i:s]'), $user, $mode, $option);
 			Log::_Log(self::LOG_PATH.$channel, $szFormat);
 		}
 	}
@@ -138,19 +138,20 @@ Class ChannelLog
 	public function onChannelTopic($bot, $channel, $user, $topic, $ident)	
 	{ 
 		if(in_array(strtolower($channel), $this->m_aChannels)) {
-			$szFormat = sprintf('%s %s changed topic to: %s', date('[H:i:s]'), $user, $topic);
+			$szFormat = sprintf('%s * %s changed topic to: %s', date('[H:i:s]'), $user, $topic);
 			Log::_Log(self::LOG_PATH.$channel, $szFormat);
 		}
 	}
 
-	public onRawEvent($bot, $rawcode, $data, $server_ident)
+	public function onRawEvent($bot, $rawcode, $data, $server_ident)
 	{
-		switch($rawcode) {
-			case 332:
-				// TODO:
-				// Now talking in #chan
-				// Topic is...
-				break;
+		if($rawcode == 332) {
+			if(in_array(strtolower($data[0]), $this->m_aChannels)) {
+				$time = date('[H:i:s]');
+				$sTopic = substr(implode(' ', array_slice($data, 1)), 1);
+				$szFormat = sprintf("%s * Now talking in %s\r\n%s * Topic is: %s", $time, $data[0], $time, $sTopic);
+				Log::_Log(self::LOG_PATH.$data[0], $szFormat);
+			}
 		}
 	}
 	
