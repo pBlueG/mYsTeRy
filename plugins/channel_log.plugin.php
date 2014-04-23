@@ -65,7 +65,7 @@ Class ChannelLog
 				if(!count($params) || !Misc::isChannel($params[0]))
 					return $bot->Say($recipient, '[color=red][b]Syntax:[/b][/color] !logdel (#channel)');	
 				$this->delChannel($params[0]);
-				$bot->Say($recipient, '>> The channel has removed from the log buffer.');
+				$bot->Say($recipient, '>> The channel has been removed from the log buffer.');
 				break;
 			default:
 				break;
