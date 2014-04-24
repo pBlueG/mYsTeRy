@@ -31,6 +31,7 @@ interface RawEvents {
 	const BANNED_FROM_CHAN = 	'474'; // banned from channel
 	const INVALID_CHAN_KEY = 	'475'; // invalid channel key
 	const NO_CHAN_PRIVILEGES = 	'482'; // requires operator to execute command
+	const TOPIC_REPLY = 		'332'; // topic reply on channel join
 }
 
 ?>

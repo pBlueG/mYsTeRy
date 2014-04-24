@@ -9,7 +9,7 @@
  * @version 2.0a
  */
 
-Class ChannelLog
+Class ChannelLog implements RawEvents
 {
 	private $m_aChannels = array();
 	private $m_sTable;
@@ -145,7 +145,7 @@ Class ChannelLog
 
 	public function onRawEvent($bot, $rawcode, $data, $server_ident)
 	{
-		if($rawcode == 332) {
+		if($rawcode == self::TOPIC_REPLY) {
 			if(in_array(strtolower($data[0]), $this->m_aChannels)) {
 				$time = date('[H:i:s]');
 				$sTopic = substr(implode(' ', array_slice($data, 1)), 1);
