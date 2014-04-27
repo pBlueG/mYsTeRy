@@ -284,16 +284,15 @@ Class CommandHandler extends Singleton
 				$iPermission = $aPrivileges[$privilege];
 			} else
 				$iPermission = $privilege;
+			$finalCode = str_replace(array("\r", "\n", "\t"), "", $sCode);
 			$this->m_aCommands[] = array(
 				'command' 	=> $sCommand,
-				'code' 		=> $sCode,
+				'code' 		=> $finalCode,
 				'description' 	=> $description,
 				'privilege' 	=> $iPermission
 			);
-			if($save_to_db) {
-				$sCode = str_replace(array("\r", "\n", "\t"), '', $sCode);
+			if($save_to_db)
 				Database::getInstance()->_insert($this->m_sTable, end($this->m_aCommands));
-			}
 			return true;
 		}
 		return false;
