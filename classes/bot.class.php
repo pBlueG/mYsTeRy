@@ -61,22 +61,24 @@ Class Bot implements RawEvents, ColorCodes
 		$this->m_bIsConnected = false;
 		if($auto_connect) 
 			$this->_connectBot();
-		$time = time();
-		$this->m_aPing['LastHit'] = $time;
+		$this->m_aPing['LastHit'] = time();
 		$this->m_aPing['PingID'] = uniqid('p');
-		$this->m_aPing['Uptime'] = $time;
 	}
 
 	public function _connectBot()
 	{
-		if($this->pSocket->_connect())
-			return $this->_registerBot();
-		else {
-			Log::Error('>> Bot '.$this->m_aBotInfo['Nick'].' couldn\'t connect to '.$this->m_aNetwork['Name'].'. Trying again in 5 seconds.');
-			$Timer = Timer::getInstance();
-			$Timer->_add($this, "_connectBot", $Timer::NO_ARGUMENTS, 5);
-			return false;
+		if($this->pSocket->_connect()) {
+			$this->m_aPing['Uptime'] = time();
+			// register bot info on the network
+			$this->Pass(substr(md5(time()), 0, 10));
+			$this->Nick($this->m_aBotInfo['Nick']);
+			$this->User($this->m_aBotInfo['Username'], $this->m_aBotInfo['Realname']);
+			return true;
 		}
+		Log::Error('>> Bot '.$this->m_aBotInfo['Nick'].' couldn\'t connect to '.$this->m_aNetwork['Name'].' (connect error @ logs/debug.log). Trying again in 5 seconds..');
+		$Timer = Timer::getInstance();
+		$Timer->_add($this, "_connectBot", $Timer::NO_ARGUMENTS, 5);
+		return false;
 	}
 
 	public function _disconnectBot()
@@ -93,7 +95,9 @@ Class Bot implements RawEvents, ColorCodes
 		if($this->_isConnected()) {
 			$this->_disconnectBot($this->m_aBotInfo['Quit']);
 			$this->_connectBot();
-		}	
+			return true;
+		}
+		return false;	
 	}
 
 	public function _isChild()
@@ -106,25 +110,11 @@ Class Bot implements RawEvents, ColorCodes
 	{
 		return $this->m_bIsConnected;
 	}
-
-	protected function _registerBot() 
-	{
-		$this->_sendCommand(
-			Commands::Pass(substr(md5(time()), 0, 10))
-		);
-		$this->_sendCommand(
-			Commands::Nick($this->m_aBotInfo['Nick'])
-		);
-		$this->_sendCommand(
-			Commands::User($this->m_aBotInfo['Username'], $this->m_aBotInfo['Realname'])
-		);
-		return true;
-	}
 	
 	protected function _Ping()
 	{
 		if($this->_isConnected()) 
-			return $this->_sendCommand(Commands::Notice($this->m_aBotInfo['Nick'], $this->m_aPing['PingID']));
+			return $this->Notice($this->m_aBotInfo['Nick'], $this->m_aPing['PingID']);
 		else
 			return false;
 	}
@@ -155,11 +145,11 @@ Class Bot implements RawEvents, ColorCodes
 			$this->_sendCommand('PONG :'.substr($sSplit[1], 1));
 		$sIdent = substr($sSplit[0], 1);
 		$ptr = Plugins::getInstance();
-		if(is_null($sSplit[1]))
+		if(!isset($sSplit[1]))
 			return;
 		switch(@strtolower($sSplit[1])) {
 			// let the events begin :o
-			case 'notice': {
+			case 'notice':
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sMessage = substr(implode(array_slice($sSplit, 3)), 1);
 				if(!strcmp($this->m_aPing['PingID'], $sMessage)) {
@@ -168,8 +158,7 @@ Class Bot implements RawEvents, ColorCodes
 				}
 				$ptr->_triggerEvent($this, "onBotNotice", $sUser, $sMessage, $sIdent);
 				break;
-			}
-			case 'privmsg': {
+			case 'privmsg':
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sMessage = substr($sSplit[3], 1);
 				if($sMessage[0] == chr(1)) {
@@ -210,14 +199,12 @@ Class Bot implements RawEvents, ColorCodes
 					}
 				}
 				break;
-			}
-			case 'invite': {
+			case 'invite':
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sChannel = substr($sSplit[3], 1);
 				$ptr->_triggerEvent($this, "onInvite", $sUser, $sChannel, $sIdent);
 				break;
-			}
-			case 'join': {
+			case 'join':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -225,8 +212,7 @@ Class Bot implements RawEvents, ColorCodes
 				Privileges::AddUser($sChannel, $sUser);
 				$ptr->_triggerEvent($this, "onChannelJoin", $sChannel, $sUser, $sIdent);
 				break;
-			}
-			case 'part': {
+			case 'part':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -238,8 +224,7 @@ Class Bot implements RawEvents, ColorCodes
 				Privileges::RemoveUser($sChannel, $sUser);
 				$ptr->_triggerEvent($this, "onChannelPart", $sChannel, $sUser, $sPartMessage, $sIdent);
 				break;
-			}
-			case 'kick': {
+			case 'kick':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -248,8 +233,7 @@ Class Bot implements RawEvents, ColorCodes
 				$sReason = substr(implode(' ', array_slice($sSplit, 4)), 1);
 				$ptr->_triggerEvent($this, "onChannelKick", $sChannel, $sUser, $sVictim, $sReason, $sIdent);
 				break;
-			}
- 			case 'mode': {
+ 			case 'mode':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -262,8 +246,7 @@ Class Bot implements RawEvents, ColorCodes
 				Privileges::UpdateUserPrivileges($sChannel, $sOption, $sMode);
 				$ptr->_triggerEvent($this, "onChannelMode", $sChannel, $sUser, $sMode, $sOption, $sIdent);
 				break;
-			}
-			case 'nick': {
+			case 'nick':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -271,8 +254,7 @@ Class Bot implements RawEvents, ColorCodes
 				Privileges::RenameUser($sUser, $sNew);
 				$ptr->_triggerEvent($this, "onNickChange", $sUser, $sNew, $sIdent);
 				break;
-			}
-			case 'quit': {
+			case 'quit':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -280,8 +262,7 @@ Class Bot implements RawEvents, ColorCodes
 				Privileges::RemoveUser(NULL, $sUser);
 				$ptr->_triggerEvent($this, "onUserQuit", $sUser, $sMessage, $sIdent);
 				break;
-			}
-			case 'topic': {
+			case 'topic':
 				if($this->_isChild()) 
 					return;
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
@@ -289,8 +270,7 @@ Class Bot implements RawEvents, ColorCodes
 				$sTopic = substr(implode(' ', array_slice($sSplit, 3)), 1);
 				$ptr->_triggerEvent($this, "onChannelTopic", $sChannel, $sUser, $sTopic, $sIdent);
 				break;
-			}
-			case self::NAMES_LIST: {
+			case self::NAMES_LIST:
 				if($this->_isChild()) 
 					return;
 				$sChannel = $sSplit[4];
@@ -301,26 +281,21 @@ Class Bot implements RawEvents, ColorCodes
 					Commands::Action('#mystery', 'slaps you in the face')
 				);*/
 				break;
-			}
-			case self::NICKNAME_ALREADY_IN_USE: {
+			case self::NICKNAME_ALREADY_IN_USE:
 				$this->_sendCommand(
 					Commands::Nick($this->m_aBotInfo['AltNick'])
 				);
 				break;
-			}
-			case self::END_MOTD: {
+			case self::END_MOTD:
 				if(!$this->_isConnected()) {
 					$this->_sendCommand('MODE '.$this->m_aBotInfo['Nick'].' +B');
-					//if(!empty($this->m_aBotInfo['Password']) && strlen($this->m_aBotInfo['Password']) >= 4)
-						//$this->_sendCommand('PRIVMSG NickServ Identify '.$this->m_aBotInfo['Password']);
 					foreach($this->m_aBotInfo['Channels'] as $Channel)
-						$this->_sendCommand(Commands::Join($Channel));
+						$this->Join($Channel);
 					$this->m_bIsConnected = true;
 					$ptr->_triggerEvent($this, "onBotConnect");
 				}
 				break;
-			}
-			default: {
+			default:
 				if($this->_isChild()) 
 					return;
 				if(is_numeric($sSplit[1])) {
@@ -328,7 +303,6 @@ Class Bot implements RawEvents, ColorCodes
 					$ptr->_triggerEvent($this, "onRawEvent", $sSplit[1], array_slice($sSplit, 3), $sIdent);
 				}
 				break;
-			}
 		}
 		
 	}

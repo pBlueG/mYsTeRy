@@ -13,9 +13,9 @@ Class Log
 {
 
 
-	public final function Error($log)
+	public final function Error($log, $file = 'logs/error.log')
 	{
-		return file_put_contents( 'logs/error.log', $log . PHP_EOL, FILE_APPEND );
+		return file_put_contents($file, $log . PHP_EOL, FILE_APPEND);
 	}
 
 	public final function DebugHandler($errno, $errstr, $errfile, $errline, $errcontext)

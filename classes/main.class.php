@@ -104,7 +104,7 @@ Class Main extends Singleton
 				Plugins::getInstance()->_load($sName);
 			}
 			catch (Exception $e) {
-				Log::Error(__METHOD__.' -> Plugin `'.$sName.'` could not be loaded:' . PHP_EOL . '>> '.$e->getMessage());
+				Log::Error(__METHOD__.' -> Plugin `'.$sName.'` could not be loaded:' . PHP_EOL . '>> '.$e->getMessage(), 'logs/plugins_debug.log');
 			}
 		}
 		return true;
