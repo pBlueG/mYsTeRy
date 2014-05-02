@@ -155,6 +155,8 @@ Class Bot implements RawEvents, ColorCodes
 			$this->_sendCommand('PONG :'.substr($sSplit[1], 1));
 		$sIdent = substr($sSplit[0], 1);
 		$ptr = Plugins::getInstance();
+		if(is_null($sSplit[1]))
+			return;
 		switch(@strtolower($sSplit[1])) {
 			// let the events begin :o
 			case 'notice': {

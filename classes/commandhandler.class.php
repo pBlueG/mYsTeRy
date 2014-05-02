@@ -1,3 +1,4 @@
+
 <?php
 
 /**
@@ -92,13 +93,14 @@ Class CommandHandler extends Singleton
 				if(count($aParams) < 3) {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !addcmd (command) (privilege) (phpcode)");
 				} else {
-					if($this->_command_exists($aParams[0])) {
+                    			$cmd = CommandHandler::getInstance();
+					if($cmd->_commandExists($aParams[0])) {
 						$bot->Say($sRecipient, "[b][color=red]Error:[/color][/b] This command already exists.");
 					} else {
 						$code = trim(implode(" ", array_slice($aParams, 2)));
 						$aError = array();
-						if($this->_validateSyntax($code, $aError)) {
-							$this->_registerCommand($aParams[0], $code, $aParams[1]);
+						if($cmd->_validateSyntax($code, $aError)) {
+							$cmd->_registerCommand($aParams[0], $code, $aParams[1]);
 							$bot->Say($sRecipient, "[b][color=green]Success:[/color][/b] The command [b]".$aParams[0]."[/b] has been succesfully added.");
 						} else {
 							$bot->Say($sRecipient, "[b][color=red]Error:[/color][/b] You have an error in your php syntax:");
@@ -117,33 +119,27 @@ Class CommandHandler extends Singleton
 				if(count($aParams) < 1) {
 					$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !delcmd (command)");
 				} else {
-					$key = NULL;
-					$key = (object)$key;
-					if(!$this->_command_exists($aParams[0], $key)) {
-						$bot->Say($sRecipient, "[b][color=red]Error:[/color][/b] This command does not exists.");
-					} else {
-						unset($this->m_aCommands[$key->index]);
-						$aCmd = array("command" => $aParams[0]);
-						Database::getInstance()->_delete($this->m_sTable, $aCmd);
-						$bot->Say($sRecipient, "[b][color=green]Success:[/color][/b] The command has been successfully removed.");
-						$this->m_aCommands = array_values($this->m_aCommands);
-					}
-					unset($key);
+                    			$cmd = CommandHandler::getInstance();
+                    			if($cmd->_unregisterCommand($aParams[0], true))
+                        			$bot->Say($sRecipient, "[b][color=green]Success:[/color][/b] The command has been successfully removed.");
+                    			else
+                        			$bot->Say($sRecipient, "[b][color=red]Error:[/color][/b] This command does not exists.");
+                   			unset($cmd);
 				}',
 				Privileges::LEVEL_BOT_ADMIN,
 				'Deletes a command from the database.'
 			);
 			$this->_registerCommand(
 				'!cmds',
-				'if($bot->_isChild()) 
+				'if($bot->_isChild() || !Misc::isChannel($sRecipient)) 
 					return;
-				$sCmds = NULL;
-				foreach($this->m_aCommands as $sCmd) {
-					$sCmds .= $sCmd["command"].", ";
-				}
-				$sCmds = substr($sCmds, 0, -2);
+				if(Privileges::IsBotAdmin($sIdent))
+					$priv = Privileges::LEVEL_BOT_ADMIN;
+				else
+					$priv = Privileges::GetUserPrivilege($sUser, $sRecipient);
+				$sCmds = CommandHandler::getInstance()->_listCommands($priv);
 				$bot->Notice($sUser, "Commands: ".$sCmds);',
-				Privileges::LEVEL_BOT_ADMIN,
+				Privileges::LEVEL_NONE,
 				'Displays all registered commands.'
 			);
 			$this->_registerCommand(
@@ -257,9 +253,7 @@ Class CommandHandler extends Singleton
 		unset($pDB);
 	}
 
-	//public function _call_command($sCommand, $aParams, 
-
-	public function _command_exists($sCommand)
+	public function _commandExists($sCommand)
 	{
 		while($aCommand = current($this->m_aCommands)) {
 			if(!strcasecmp($aCommand['command'], $sCommand)) {
@@ -276,27 +270,80 @@ Class CommandHandler extends Singleton
 		return false;
 	}
 
+	public function _listCommands($privilege)
+	{
+		$iPermission = $this->_getPermission($privilege);
+		$sRet = NULL;
+		foreach($this->m_aCommands as $aCmd) {
+			if($aCmd['privilege'] <= $iPermission)
+				$sRet .= $aCmd['command'].', ';
+		}
+		if(strlen($sRet) > 0)
+			$sRet = substr($sRet, 0, -2);	
+		return $sRet;
+	}	
+
+	private function _getPermission($privilege)
+	{
+		$iPermission = Privileges::LEVEL_NONE;
+		if(!is_numeric($privilege)) {
+			$aPrivileges = array('0' => 0, '+' => 1, '%' => 2, '@' => 4, '&' => 8, '~' => 16, '*' => 1337);
+			if(!is_null($aPrivileges[$privilege]))
+				$iPermission = $aPrivileges[$privilege];
+		} else
+			$iPermission = $privilege;
+		return $iPermission;
+	}
+
+	public function _registerCallback($sCommand, $oClass, $sCallback, $privilege)
+	{
+		if(!$this->_commandExists($sCommand)) {
+			if(method_exists($oClass, $sCallback) && is_callable(array($oClass, $sCallback))) {
+				$this->m_aCommands[] = array(
+					'command' 	=> $sCommand,
+					'code' 		=> NULL,
+					'class'		=> $oClass,
+					'callback'	=> $sCallback,
+					'privilege' 	=> $this->_getPermission($privilege)
+				);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function _registerCommand($sCommand, $sCode, $privilege, $description = NULL, $save_to_db = true)
 	{
-		if(!$this->_command_exists($sCommand)) {
-			if(!is_numeric($privilege)) {
-				$aPrivileges = array('0' => 0, '+' => 1, '%' => 2, '@' => 4, '&' => 8, '~' => 16, '*' => 1337);
-				$iPermission = $aPrivileges[$privilege];
-			} else
-				$iPermission = $privilege;
+		if(!$this->_commandExists($sCommand)) {
 			$finalCode = str_replace(array("\r", "\n", "\t"), "", $sCode);
+			$closure = create_function('$bot, $sCommand, $aParams, $sUser, $sRecipient, $sIdent', $finalCode);
 			$this->m_aCommands[] = array(
 				'command' 	=> $sCommand,
 				'code' 		=> $finalCode,
 				'description' 	=> $description,
-				'privilege' 	=> $iPermission
+				'privilege' 	=> $this->_getPermission($privilege)
 			);
+			end($this->m_aCommands);
+			$ret = key($this->m_aCommands);
 			if($save_to_db)
-				Database::getInstance()->_insert($this->m_sTable, end($this->m_aCommands));
+				Database::getInstance()->_insert($this->m_sTable, $this->m_aCommands[$ret]);
+			$this->m_aCommands[$ret]['closure'] = $closure;
 			return true;
 		}
 		return false;
 	}
+    
+    	public function _unregisterCommand($sCommand, $db_reset = false)
+    	{
+        	$key = NULL;
+        	$key = (object)$key;
+        	if(!$this->_commandExists($sCommand, $key))
+            		return false;
+        	unset($this->m_aCommands[$key->index]);
+        	if($db_reset)
+            		Database::getInstance()->_delete($this->m_sTable, array('command' => $sCommand));
+        	return true;
+    	}
 			
 	public function _parse($bot, $sCommand, $aParams, $sUser, $sRecipient, $sIdent)
 	{
@@ -306,7 +353,7 @@ Class CommandHandler extends Singleton
 				$RequiredPrivilege = $aCommand['privilege'];
 				$bIsAdmin = Privileges::IsBotAdmin($sIdent);
 				$bExecute = false;
-				if($RequiredPrivilege > 0 && !$bIsAdmin && $sRecipient[0] == '#') {
+				if($RequiredPrivilege > 0 && !$bIsAdmin && Misc::isChannel($sRecipient)) {
 					//$UserPrivilege = Privileges::GetUserPrivilege($sUser, $sRecipient);
 					switch($RequiredPrivilege) {
 						case Privileges::LEVEL_VOICE:
@@ -329,8 +376,14 @@ Class CommandHandler extends Singleton
 					}
 				}
 				$bExists = true;
-				if($bExecute || !$RequiredPrivilege || $bIsAdmin)
-					eval($aCommand['code']);
+				if($bExecute || !$RequiredPrivilege || $bIsAdmin) {
+					if(array_key_exists('callback', $aCommand))
+						call_user_func_array(array($aCommand['class'], $aCommand['callback']), array($bot, $sUser, $sRecipient, $aParams));
+					else
+						//$aCommand['closure']($bot, $sCommand, $aParams, $sUser, $sRecipient, $sIdent);
+						call_user_func($aCommand['closure'], $bot, $sCommand, $aParams, $sUser, $sRecipient, $sIdent);
+						//eval($aCommand['code']); // evil eval!
+				}
 				break;
 			}
 		}
@@ -350,7 +403,7 @@ Class CommandHandler extends Singleton
 		return true;
 	}
 
-	protected function _validateSyntax($sCode, &$errorReturn)
+	public function _validateSyntax($sCode, &$errorReturn)
 	{
 		$tempFile = time().".temp.php";
 		file_put_contents($tempFile, "<?php ".$sCode." ?>");

@@ -115,7 +115,7 @@ Class Privileges
 		if(isset(self::$m_aChannels[$sChannel][$sUser]))
 			return self::$m_aChannels[$sChannel][$sUser];
 		else
-			return false;
+			return LEVEL_NONE;
 	}
 
 	private static function _privilege_bit($offset = 0)

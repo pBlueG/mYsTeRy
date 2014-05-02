@@ -28,23 +28,17 @@ require_once('classes/ini.class.php' );
 require_once('classes/timer.class.php');
 require_once('classes/commandhandler.class.php');
 
-/*
-// soon to uncomment
-foreach(glob('classes/*.class.php') as $filename) {
-	require_once($filename);
-}
-*/
+echo "Initializing mYsTeRy ".REVISION." ...". PHP_EOL;
 
-$pIni = Ini::getInstance();
+$INI = Ini::getInstance();
+$g_aConfig = array(
+	'General' 	=> $INI->_getConfig('configuration/general.ini', 'General'),
+	'Bots' 		=> $INI->_getArrayConfig('bots', 'Bot'),
+	'Networks' 	=> $INI->_getArrayConfig('networks', 'Network'),
+);
 CommandHandler::getInstance();
 Database::getInstance();
 Timer::getInstance();
-
-$g_aConfig = array(
-	'General' 	=> $pIni->_getConfig('configuration/general.ini', 'General'),
-	'Bots' 		=> $pIni->_getArrayConfig('bots', 'Bot'),
-	'Networks' 	=> $pIni->_getArrayConfig('networks', 'Network'),
-);
 $g_aNetworks = $g_aConfig['Networks'];
 unset($g_aConfig['Networks']);
 
@@ -58,8 +52,12 @@ foreach($g_aConfig['General']['Admins'] as $sAdmin) {
 		Log::Error('>> Invalid ident format -> '.$sAdmin);
 }
 
+echo "General & Bot configuration has been loaded.". PHP_EOL;
+
 $gHandler = Main::getInstance($g_aConfig, $g_aNetworks);
 $iSleep = $g_aConfig['General']['Sleep'];
+
+echo "All required modules have been successfully registered.". PHP_EOL;
 
 while(true) {
 	$gHandler->_Run();

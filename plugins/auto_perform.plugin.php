@@ -14,7 +14,7 @@ Class AutoPerform
 {
 	public function __construct() 
 	{
-		echo ">> Auto Perform plugin called.".PHP_EOL;
+		echo ">> Auto Perform has been loaded.".PHP_EOL;
 	}
 
 	public function onBotConnect($bot)
