@@ -75,7 +75,7 @@ Class Bot implements RawEvents, ColorCodes
 			$this->User($this->m_aBotInfo['Username'], $this->m_aBotInfo['Realname']);
 			return true;
 		}
-		Log::Error('>> Bot '.$this->m_aBotInfo['Nick'].' couldn\'t connect to '.$this->m_aNetwork['Name'].' (connect error @ logs/debug.log). Trying again in 5 seconds..');
+		Log::Error(date('[H:i:s]').' Bot '.$this->m_aBotInfo['Nick'].' couldn\'t connect to '.$this->m_aNetwork['Name'].' (connect error @ logs/debug.log). Trying again in 5 seconds..');
 		$Timer = Timer::getInstance();
 		$Timer->_add($this, "_connectBot", $Timer::NO_ARGUMENTS, 5);
 		return false;
@@ -189,10 +189,10 @@ Class Bot implements RawEvents, ColorCodes
 						if(!strcasecmp($sCheck[0], 'login') && !Privileges::IsBotAdmin($sIdent)) {
 							if(!strcmp(Main::getInstance()->m_aSettings['AdminPass'], implode(' ', array_slice($sCheck, 1)))) {
 								Privileges::AddBotAdmin($sIdent);
-								$this->PM($sUser, ">> You have been successfully identified");
+								$this->Notice($sUser, "You have been successfully identified. Use !cmds for a list of all available commands.");
 							} else {
 								// todo: log invalid attempts and black after a certain amount of invalid tries
-								$this->PM($sUser, ">> Invalid login attempt. Ident has been logged.");
+								$this->Notice($sUser, ">> Invalid login attempt. Ident has been logged.");
 							}
 						}
 						$ptr->_triggerEvent($this, "onPrivateMessage", $sUser, $sMessage, $sIdent);
@@ -282,9 +282,8 @@ Class Bot implements RawEvents, ColorCodes
 				);*/
 				break;
 			case self::NICKNAME_ALREADY_IN_USE:
-				$this->_sendCommand(
-					Commands::Nick($this->m_aBotInfo['AltNick'])
-				);
+				Log::Error(date('[H:i:s]').' Nickname is already in use. Using alternative nick ('.$this->m_aBotInfo['AltNick'].')');
+				$this->Nick($this->m_aBotInfo['AltNick']);
 				break;
 			case self::END_MOTD:
 				if(!$this->_isConnected()) {
@@ -294,6 +293,10 @@ Class Bot implements RawEvents, ColorCodes
 					$this->m_bIsConnected = true;
 					$ptr->_triggerEvent($this, "onBotConnect");
 				}
+				break;
+			case self::CHANNEL_REQ_KEY:
+				$sChannel = $sSplit[3];
+				Log::Error(date('[H:i:s]').' Channel ('.$sChannel.') requires a valid key to join. (+k)');
 				break;
 			default:
 				if($this->_isChild()) 

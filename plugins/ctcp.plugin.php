@@ -9,9 +9,9 @@
  * @version 2.0a
  */
 
-Class Ctcp
+Class CtcpReply
 {
-	function __construct()
+	public function __construct()
 	{
 		echo '>> CTCP plugin has been loaded.'.PHP_EOL;
 	}

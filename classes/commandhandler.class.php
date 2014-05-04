@@ -219,9 +219,9 @@ Class CommandHandler extends Singleton
 				'!ident',
 				'if($bot->_isChild()) 
 					return;
-				$bot->PM(
+				$bot->Notice(
 					$sUser, 
-					"Your ident is [i]".$sIdent."[/i]"
+					"Your ident is ".$sIdent
 				);',
 				Privileges::LEVEL_NONE,
 				'Shows the ident.'
