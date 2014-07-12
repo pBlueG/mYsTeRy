@@ -36,7 +36,8 @@ Class Privileges
 
 	private static $m_aAdmins = array();
 	
-	public static function ParseChannelPrivileges($sChannel, $aUsers) {
+	public static function ParseChannelPrivileges($sChannel, $aUsers) 
+	{
 		foreach($aUsers as $sUser) {
 			if(in_array($sUser[0], self::$m_aPrivileges)) {
 				$sKey = substr($sUser, 1);
@@ -46,7 +47,8 @@ Class Privileges
 		}
 	}
 
-	public static function AddUser($sChannel, $sUser, $mode = 0) {
+	public static function AddUser($sChannel, $sUser, $mode = 0) 
+	{
 		if(isset(self::$m_aChannels[$sChannel])) {
 			self::$m_aChannels[$sChannel][$sUser] = $mode;
 			return true;
@@ -64,7 +66,8 @@ Class Privileges
 		}
 	}
 
-	public static function UpdateUserPrivileges($sChannel, $sUser, $modes) {
+	public static function UpdateUserPrivileges($sChannel, $sUser, $modes) 
+	{
 		$iLen = strlen($modes);
 		$SetUnset = NULL;
 		$aUser = explode(' ', trim($sUser));
@@ -118,7 +121,7 @@ Class Privileges
 			return LEVEL_NONE;
 	}
 
-	private static function _privilege_bit($offset = 0)
+	private static function generate_privilege($offset = 0)
 	{
 		$aTemp = array_slice(self::$m_aAccessLevel, $offset);
 		$iResult = array_reduce($aTemp, function($bit, $bit_) { return $bit | $bit_; }, 0);
@@ -128,7 +131,7 @@ Class Privileges
 	public static function IsVoiced($sUser, $sChannel) 
 	{ 
 		if(isset(self::$m_aChannels[$sChannel][$sUser])) {
-			$Bit = self::_privilege_bit();
+			$Bit = self::generate_privilege();
 			if(self::$m_aChannels[$sChannel][$sUser] & $Bit)
 				return true;
 		}
@@ -138,7 +141,7 @@ Class Privileges
 	public static function IsHalfop($sUser, $sChannel) 
 	{ 
 		if(isset(self::$m_aChannels[$sChannel][$sUser])) {
-			$Bit = self::_privilege_bit(1);
+			$Bit = self::generate_privilege(1);
 			if(self::$m_aChannels[$sChannel][$sUser] & $Bit)
 				return true;
 		}
@@ -148,7 +151,7 @@ Class Privileges
 	public static function IsOperator($sUser, $sChannel) 
 	{ 
 		if(isset(self::$m_aChannels[$sChannel][$sUser])) {
-			$Bit = self::_privilege_bit(2);
+			$Bit = self::generate_privilege(2);
 			if(self::$m_aChannels[$sChannel][$sUser] & $Bit)
 				return true;
 		}
@@ -158,7 +161,7 @@ Class Privileges
 	public static function IsSuperOperator($sUser, $sChannel) 
 	{ 
 		if(isset(self::$m_aChannels[$sChannel][$sUser])) {
-			$Bit = self::_privilege_bit(3);
+			$Bit = self::generate_privilege(3);
 			if(self::$m_aChannels[$sChannel][$sUser] & $Bit)
 				return true;
 		}
@@ -168,7 +171,7 @@ Class Privileges
 	public static function IsOwner($sUser, $sChannel) 
 	{ 
 		if(isset(self::$m_aChannels[$sChannel][$sUser])) {
-			$Bit = self::_privilege_bit(4);
+			$Bit = self::generate_privilege(4);
 			if(self::$m_aChannels[$sChannel][$sUser] & $Bit)
 				return true;
 		}

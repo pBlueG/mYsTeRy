@@ -33,6 +33,7 @@ interface RawEvents {
 	const NO_CHAN_PRIVILEGES = 	'482'; // requires operator to execute command
 	const TOPIC_REPLY = 		'332'; // topic reply on channel join
 	const CHANNEL_REQ_KEY = 	'475'; // channel requires valid key to join
+	const CHANNEL_FULL =		'471'; // channel is full (+l)
 }
 
 ?>
