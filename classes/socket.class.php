@@ -95,15 +95,6 @@ Class Socket
 			$this->m_bSSL = true;
 	}
 
-	/**
-	 * Not in use
-	 */
-	private function _runIdentServer()
-	{
-		$this->m_IdentD = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		socket_bind($this->m_IdentD, "127.0.0.1", 113);
-		socket_listen($this->m_IdentD);
-	}
 
 	/**
 	 * This function connects to the IRC server
@@ -229,8 +220,7 @@ Class Socket
 				return ($aServer = array('Host' => $sHost, 'IP' => $sIPv4));
 			}
 		}
-		$pLog = Log::getInstance();
-		$pLog->_Error('-- No valid server found to connect. Check your server settings:'.PHP_EOL.var_export($aServers, true).PHP_EOL);
+		Log::Error('-- No valid server found to connect. Check your server settings:'.PHP_EOL.var_export($aServers, true).PHP_EOL);
 		exit();
 		return;
 			
@@ -238,7 +228,7 @@ Class Socket
 
 	protected function _print_stats()
 	{
-		$pLog = Log::getInstance();
+		//$pLog = Log::getInstance();
 		//return $pLog->_L('--'.PHP_EOL.'Total Bytes Received: '.$this->m_gBytesReceived.' / Sent: '.$this->m_gBytesSent.PHP_EOL.'--'.PHP_EOL);
 	}
 }	

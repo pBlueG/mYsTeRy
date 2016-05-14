@@ -6,7 +6,7 @@
  * @author BlueG
  * @package mYsTeRy-v2
  * @access public
- * @version 2.0
+ * @version 2.1a
  */
 
 Class Main extends Singleton
@@ -34,14 +34,6 @@ Class Main extends Singleton
 	 * @access private
 	 */
 	private $m_aPlugins = array();
-	
-	/**
-	 * An integer used to ping the bots
-	 *
-	 * @var integer
-	 * @access private
-	 */
-	private $m_iTicks = 0;
 
 	/**
 	 * This array contains all settings which have been used in configuration/*.ini
@@ -50,14 +42,6 @@ Class Main extends Singleton
 	 * @access protected
 	 */
 	public $m_aSettings;
-
-	/**
-	 * An integer used to determine the tick amount per second
-	 *
-	 * @var integer
-	 * @access public
-	 */
-	public $iTicksPer = 0;
 
 	/**
 	 * Pointer to the timer class
@@ -79,14 +63,12 @@ Class Main extends Singleton
                 foreach($aConfig['General'] as $key => $value) {
                         $this->m_aSettings[$key] = $value;
                 }
-                $this->iTicksPer = round((1000000/$this->m_aSettings['Sleep']), 0, PHP_ROUND_HALF_UP);
                 $this->m_aNetData = $aNetworks;
 		if(!strcmp($this->m_aSettings['AdminPass'], 'defaultpass')) 
 			$this->m_aSettings['AdminPass'] = md5(time());
+		$this->m_pTimer = Timer::getInstance();
                 $this->_initBots($aConfig['Bots']);
                 $this->_initPlugins($this->m_aSettings['Plugins']);
-    		$this->m_pTimer = Timer::getInstance();
-		$this->m_pTimer->_add($this, "_pingCheck", 0, $this->m_aSettings['Ping'], true);
 	}
 	
 	/**
@@ -123,9 +105,10 @@ Class Main extends Singleton
 	{
 		foreach($aBots as $botData) {
 			$netname = $botData['Network'];
-			if(array_key_exists(strtolower($netname), array_change_key_case($this->m_aNetData, CASE_LOWER)))
-				$this->m_aBots[] = new Bot(/*$this,*/$this->m_aNetData[$netname], $botData);
-			else
+			if(array_key_exists(strtolower($netname), array_change_key_case($this->m_aNetData, CASE_LOWER))) {
+				$this->m_aBots[] = new Bot($this->m_aNetData[$netname], $botData);
+				$this->m_pTimer->_add(end($this->m_aBots), '_Ping', 0, $this->m_aSettings['Ping'], true);
+			} else
 				Log::Error(__METHOD__.'-> Bot `'.$botData['Nick'].'` can\'t connect:'.PHP_EOL.'>> Please check network settings for `'.$netname.'`');
 		}
 	}
@@ -160,7 +143,7 @@ Class Main extends Singleton
 			'Channels'	=> $channels
 		);
 		if(array_key_exists(strtolower($netname), array_change_key_case($this->m_aNetData, CASE_LOWER))) {
-			$this->m_aBots[] = new Bot(/*$this,*/$this->m_aNetData[$netname], $aChild);
+			$this->m_aBots[] = new Bot($this->m_aNetData[$netname], $aChild);
 			return end($this->m_aBots);
 		} else
 			return Log::Error(__METHOD__.'-> Bot `'.$botData['Nick'].'` can\'t connect:'.PHP_EOL.'>> Please check network settings for `'.$netname.'`');
@@ -175,12 +158,7 @@ Class Main extends Singleton
 	 */
 	public final function _Run()
 	{
-		$this->m_iTicks++;
 		foreach($this->m_aBots as $pFamilyMember) {
-			if($this->m_iTicks >= ($this->iTicksPer*$this->m_aSettings['Ping']) && $pFamilyMember->_isConnected()) {
-				$pFamilyMember->_Ping();
-				$this->m_iTicks = 0;
-			}
 			$pFamilyMember->_Update();
 			//if(!$pFamilyMember->_isChild()) 
 			//	$pFamilyMember->_triggerPluginEvent("onTick");
@@ -188,19 +166,6 @@ Class Main extends Singleton
 		$this->m_pTimer->_update();
 		Plugins::getInstance()->_triggerEvent("onTick");
 		
-	}
-
-	public function _pingCheck()
-	{
-		$iCurrent = time();
-		foreach($this->m_aBots as $pFamilyMember) {
-			if($pFamilyMember->_isConnected()) {
-				if(($iCurrent-$pFamilyMember->_getLastPing()) > ($this->m_aSettings['Ping']+15)) {
-					// TODO
-					// bot has most likely timed out
-				}
-			}
-		}	
 	}
 }
 

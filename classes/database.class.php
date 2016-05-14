@@ -31,7 +31,7 @@ Class Database extends Singleton
 			self::$DB->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 		}
 		catch(PDOException $e) {
-			Log::getInstance()->_Error(__METHOD__.' -> '.$e->getMessage());
+			Log:_Log('logs/database%20error.log', ___METHOD__ . ' -> ' . $e->getMessage(), date('[d/m/Y | H:i:s] '));
 			$this->m_bIsConnected = false;
 		}
 	}

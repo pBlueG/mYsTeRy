@@ -52,7 +52,7 @@ Class ChannelLog implements RawEvents
 	public function onCommand($bot, $command, $params, $user, $recipient, $ident)
 	{
 		if(!Privileges::IsBotAdmin($ident))
-			return;
+			return false;
 		switch(strtolower($command)) {
 			case '!logadd': 
 				if(!count($params) || !Misc::isChannel($params[0]))
@@ -70,6 +70,7 @@ Class ChannelLog implements RawEvents
 			default:
 				break;
 		}
+		return true;
 	}
 
 	private function addChannel($channel)

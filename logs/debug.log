@@ -1,0 +1,108 @@
+[06/05/2016 | 20:31:53] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://exnet.se.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:31:58] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://foco.nl.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:05] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://foco2.us.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:10] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://foco.nl.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:15] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://foco2.us.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:20] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://foco2.us.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:25] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://foco.nl.irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:54] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:32:59] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:04] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:09] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:14] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:19] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:24] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:29] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:34] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:39] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:44] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:49] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:54] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:33:59] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:34:04] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 20:34:09] Warning (2):
+Found on line 136 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\socket.class.php]
+stream_socket_client(): unable to connect to ssl://irc.tl:6697 (Unable to find the socket transport "ssl" - did you forget to enable it when you configured PHP?)
+
+[06/05/2016 | 21:06:12] Warning (2):
+Found on line 188 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\bot.class.php]
+explode() expects parameter 2 to be string, array given
+
+[08/05/2016 | 13:06:46] Notice (8):
+Found on line 65 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\bot.class.php]
+Undefined variable: Timer
+
+[08/05/2016 | 13:07:17] Notice (8):
+Found on line 65 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\bot.class.php]
+Undefined index: Sleep
+
+[08/05/2016 | 13:08:11] Notice (8):
+Found on line 65 -> File[C:\Users\Ibm\Documents\GitHub\mystery\mYsTeRy\classes\bot.class.php]
+Undefined index: Sleep
+

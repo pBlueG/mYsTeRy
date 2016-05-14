@@ -18,7 +18,7 @@ Class Ini extends Singleton
 		}
 		
 		if(empty($this->m_aBotIni)) {
-			Log::getInstance()->_Error('[ERROR] : No bot configuration files found. Closing..');
+			Log::_Error('[ERROR] : No bot configuration files found. Closing..');
 			die();
 		}*/
 		
@@ -45,7 +45,8 @@ Class Ini extends Singleton
 	
 	private function _parseIni($file)
 	{
-		if(!file_exists($file)) return Log::getInstance()->_Error('[ERROR] : `'.$file.'` does not exist');
+		if(!file_exists($file)) 
+			return Log::Error('[ERROR] : `'.$file.'` does not exist');
 		return parse_ini_file($file, true);
 	}
 }

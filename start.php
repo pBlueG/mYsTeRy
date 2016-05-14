@@ -1,6 +1,6 @@
 <?php
 
-define('REVISION', 'v2.0a');
+define('REVISION', 'v2.1a');
 
 // timezone
 date_default_timezone_set('Europe/Amsterdam');

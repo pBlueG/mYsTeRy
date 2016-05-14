@@ -13,12 +13,12 @@ Class Log
 {
 
 
-	public final function Error($log, $file = 'logs/error.log')
+	public static function Error($log, $file = 'logs/bot%20error.log')
 	{
 		return file_put_contents($file, $log . PHP_EOL, FILE_APPEND);
 	}
 
-	public final function DebugHandler($errno, $errstr, $errfile, $errline, $errcontext)
+	public static function DebugHandler($errno, $errstr, $errfile, $errline, $errcontext)
 	{
 		$szLog = date('[d/m/Y | H:i:s] ');
 		switch($errno) {
@@ -48,7 +48,7 @@ Class Log
 	}
 
 
-	public final function _Log($filename, $data, $timestamp = NULL)
+	public static function _Log($filename, $data, $timestamp = NULL)
 	{
 		return file_put_contents($filename.'.log', (is_null($timestamp) ? $data : $timestamp.$data) . PHP_EOL, FILE_APPEND);
 	}

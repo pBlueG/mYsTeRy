@@ -6,7 +6,7 @@
  * @author BlueG
  * @package mYsTeRy-v2
  * @access public
- * @version 2.0a
+ * @version 2.1a
  */
 
 Class Bot implements RawEvents, ColorCodes
@@ -61,7 +61,6 @@ Class Bot implements RawEvents, ColorCodes
 		$this->m_bIsConnected = false;
 		if($auto_connect) 
 			$this->_connectBot();
-		$this->m_aPing['LastHit'] = time();
 		$this->m_aPing['PingID'] = uniqid('p');
 	}
 
@@ -86,8 +85,8 @@ Class Bot implements RawEvents, ColorCodes
 		if($this->_isConnected()) {
 			$this->m_bIsConnected = false;
 			return $this->pSocket->_disconnect($this->m_aBotInfo['Quit']);
-		} else
-			return false;
+		}
+		return false;
 	}
 
 	public function _reconnectBot()
@@ -102,7 +101,6 @@ Class Bot implements RawEvents, ColorCodes
 
 	public function _isChild()
 	{
-		// Check whether the given bot is a child
 		return $this->m_aBotInfo['Child'];
 	}
 
@@ -111,12 +109,11 @@ Class Bot implements RawEvents, ColorCodes
 		return $this->m_bIsConnected;
 	}
 	
-	protected function _Ping()
+	public function _Ping()
 	{
 		if($this->_isConnected()) 
 			return $this->Notice($this->m_aBotInfo['Nick'], $this->m_aPing['PingID']);
-		else
-			return false;
+		return false;
 	}
 
 	public function _getLastPing()
@@ -133,8 +130,7 @@ Class Bot implements RawEvents, ColorCodes
 	{
 		if($as_array)
 			return $this->m_aNetwork;
-		else
-			return $this->m_aNetwork['Name'];
+		return $this->m_aNetwork['Name'];
 	}
 
 	public function _EventHandler($in_buffer)
@@ -148,14 +144,11 @@ Class Bot implements RawEvents, ColorCodes
 		if(!isset($sSplit[1]))
 			return;
 		switch(@strtolower($sSplit[1])) {
-			// let the events begin :o
 			case 'notice':
 				$sUser = substr($sSplit[0], 1, strpos($sSplit[0], '!')-1);
 				$sMessage = substr(implode(array_slice($sSplit, 3)), 1);
-				if(!strcmp($this->m_aPing['PingID'], $sMessage)) {
-					$this->m_aPing['LastHit'] = time();
-					continue;
-				}
+				if(!strcmp($this->m_aPing['PingID'], $sMessage))
+					continue; // fall through
 				$ptr->_triggerEvent($this, "onBotNotice", $sUser, $sMessage, $sIdent);
 				break;
 			case 'privmsg':
