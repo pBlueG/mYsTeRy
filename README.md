@@ -5,7 +5,7 @@ The following short instruction will show you how to configure the IRC bot. Once
 
 ### Directory hierarchy
 
-- mYsTeRy-v2.0a/
+- mYsTeRy-v2.1a/
 	- /classes/
 	- /configuration/
 		- /bots/
@@ -37,8 +37,6 @@ The following short instruction will show you how to configure the IRC bot. Once
 	Plugins[] 	= ctcp
 	Plugins[] 	= dcc
 	Plugins[]	= "auto_perform"
-
-
 
 
 
@@ -119,6 +117,21 @@ are two ways to identify as administrator:
 		 /msg [BotNickname] login [password]
 
 	   The bot will let you know, whether it worked or not.
+
+
+
+
+### PHP extensions
+
+The bot requires various php libraries to work properly. The following list
+will show you all required extensions in your PHP configuration file (php.ini).
+
+	php_sockets.(so|dll)
+	php_sqlite3.(so|dll)
+	php_mysql.(so|dll)
+	php_pdo_mysql.(so|dll)
+	php_pdo_sqlite.(so|dll)
+	php_openssl.(so|dll)
 
 
 
