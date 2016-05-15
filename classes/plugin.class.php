@@ -21,7 +21,8 @@ Class Plugins extends Singleton
 
 	public function _unload($plugin_name)
 	{
-		if(!$this->_isLoaded($plugin_name)) return false;
+		if(!$this->_isLoaded($plugin_name)) 
+			return false;
 		unset($this->m_aPlugins[$plugin_name]);
 		return true;
 		
@@ -29,7 +30,8 @@ Class Plugins extends Singleton
 
 	public function _getPlugin($plugin_name)
 	{
-		if(!$this->_isLoaded($plugin_name)) return;
+		if(!$this->_isLoaded($plugin_name)) 
+			return false;
 		return $this->m_aPlugins[$plugin_name];
 	}
 
@@ -50,14 +52,12 @@ Class Plugins extends Singleton
 		return @file_exists('plugins/'.$plugin_name.'.plugin.php');
 	}
 
-	private function _validatePlugin($plugin_name)
+	private function _validate($plugin_name)
 	{
 		exec('php -ddisplay_errors=On --syntax-check plugins/'.$plugin_name.'.plugin.php', $retarr, $retvar);
 		$iArrCount = count($retarr);
 		if($iArrCount > 1) {
-			// oops, syntax error found
-			$retarr = array_splice($retarr, 3);
-			array_pop($retarr);
+			$retarr = array_slice($retarr, 1);
 			throw new Exception(str_replace("\n", "\r\n", print_r($retarr, true)));
 		}
 	}
@@ -65,8 +65,9 @@ Class Plugins extends Singleton
 	// might be converted to use runkit in future => more efficient
 	public function _load($plugin_name)
 	{
-		if(!$this->_plugin_exists($plugin_name) || $this->_isLoaded($plugin_name)) return;
-		$this->_validatePlugin($plugin_name);
+		if(!$this->_plugin_exists($plugin_name) || $this->_isLoaded($plugin_name)) 
+			return false;
+		$this->_validate($plugin_name);
 		$szContent = file_get_contents('plugins/'.$plugin_name.'.plugin.php');
 		// first of all, we will have to find the classname in the given class
 		$aTokens = token_get_all($szContent);

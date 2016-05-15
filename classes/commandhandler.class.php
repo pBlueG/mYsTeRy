@@ -405,14 +405,12 @@ Class CommandHandler extends Singleton
 
 	public function _validateSyntax($sCode, &$errorReturn)
 	{
-		$tempFile = time().".temp.php";
-		file_put_contents($tempFile, "<?php ".$sCode." ?>");
-		exec("php -ddisplay_errors=On --syntax-check ".$tempFile, $retarr, $retvar);
+		$tempFile = time().'.temp.php';
+		file_put_contents($tempFile, '<?php '.$sCode.' ?>');
+		exec('php -ddisplay_errors=On --syntax-check '.$tempFile, $retarr, $retvar);
 		unlink($tempFile);
 		if(count($retarr) > 1) {
-			// remove all date_* warnings
-			$errorReturn = array_splice($retarr, 3);
-			array_pop($errorReturn);
+			$errorReturn = array_slice($retarr, 1);
 			return false;
 		}
 		return true;

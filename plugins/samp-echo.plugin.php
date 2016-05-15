@@ -2,7 +2,7 @@
 
 /**
  * San Andreas Multiplayer Echo Class
- * - see configuration/sa-mp.echo.ini to configure the echo settings
+ * - configuratin @ configuration/sa-mp.echo.ini 
  *
  * @author BlueG
  * @package mYsTeRy-v2
@@ -30,9 +30,9 @@ Class SAMPEcho extends Main
 				$sNick = sprintf($this->m_pConfig['child_name'].$this->m_pConfig['child_prefix'], ($idx+1));
 				Main::getInstance()->_createChild(
 					$sNick, 
-					$sNick.'`', 
+					$sNick.'_', 
 					$sNick, 
-					'Echo Bot',
+					'Slave',
 					'password', 
 					array($this->m_pConfig['echo_channel']), 
 					array(), 

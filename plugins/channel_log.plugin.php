@@ -39,6 +39,7 @@ Class ChannelLog implements RawEvents
 			}
 		}
 		unset($pDB);
+		echo '>> Channel Log plugin has been loaded.';
 	}
 
 	public function __destruct()

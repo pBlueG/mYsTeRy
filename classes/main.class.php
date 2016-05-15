@@ -44,12 +44,20 @@ Class Main extends Singleton
 	public $m_aSettings;
 
 	/**
-	 * Pointer to the timer class
+	 * Pointer to timer class
  	 * 
 	 * @var pointer
 	 * @access protected
 	 */
 	protected $m_pTimer;
+
+	/**
+	 * Pointer to plugin class
+ 	 * 
+	 * @var pointer
+	 * @access protected
+	 */
+	protected $m_pModule;
 
 	/**
 	 * Class constructor
@@ -67,6 +75,7 @@ Class Main extends Singleton
 		if(!strcmp($this->m_aSettings['AdminPass'], 'defaultpass')) 
 			$this->m_aSettings['AdminPass'] = md5(time());
 		$this->m_pTimer = Timer::getInstance();
+		$this->m_pModule = Plugins::getInstance();
                 $this->_initBots($aConfig['Bots']);
                 $this->_initPlugins($this->m_aSettings['Plugins']);
 	}
@@ -80,13 +89,14 @@ Class Main extends Singleton
 	 */	
 	private function _initPlugins(array $aPlugins)
 	{
-		if(empty($aPlugins)) return false;
+		if(empty($aPlugins)) 
+			return false;
 		foreach($aPlugins as $sName) {
 			try {
-				Plugins::getInstance()->_load($sName);
+				$this->m_pModule->_load($sName);
 			}
 			catch (Exception $e) {
-				Log::Error(__METHOD__.' -> Plugin `'.$sName.'` could not be loaded:' . PHP_EOL . '>> '.$e->getMessage(), 'logs/plugins_debug.log');
+				Log::Error(__METHOD__.' -> Plugin `'.$sName.'` could not be loaded:' . PHP_EOL . '>> '.$e->getMessage(), "logs/Plugin Error.log");
 			}
 		}
 		return true;
@@ -164,7 +174,7 @@ Class Main extends Singleton
 			//	$pFamilyMember->_triggerPluginEvent("onTick");
 		}
 		$this->m_pTimer->_update();
-		Plugins::getInstance()->_triggerEvent("onTick");
+		$this->m_pModule->_triggerEvent("onTick");
 		
 	}
 }

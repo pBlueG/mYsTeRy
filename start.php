@@ -16,7 +16,7 @@ require_once('interfaces/ColorCodes.php');
 require_once('classes/singleton.class.php');
 require_once('classes/log.class.php');
 set_error_handler('Log::DebugHandler', E_ALL);
-require_once('classes/channel_priv.class.php');
+require_once('classes/privileges.class.php');
 require_once('classes/commands.class.php');
 require_once('classes/misc.class.php');
 require_once('classes/main.class.php');
@@ -28,7 +28,16 @@ require_once('classes/ini.class.php' );
 require_once('classes/timer.class.php');
 require_once('classes/commandhandler.class.php');
 
-echo "Initializing mYsTeRy ".REVISION." ...". PHP_EOL;
+
+
+//include_once('loadup.php');
+/*
+loadBotData() -> return true
+loadServerData() -> return true
+closures maybe
+*/
+
+echo 'Initializing mYsTeRy '.REVISION.' ...'. PHP_EOL;
 
 $INI = Ini::getInstance();
 $g_aConfig = array(

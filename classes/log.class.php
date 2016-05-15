@@ -13,7 +13,7 @@ Class Log
 {
 
 
-	public static function Error($log, $file = 'logs/bot%20error.log')
+	public static function Error($log, $file = 'logs/Bot Error.log')
 	{
 		return file_put_contents($file, $log . PHP_EOL, FILE_APPEND);
 	}
