@@ -1,8 +1,9 @@
 <?php
 
-define('REVISION', 'v2.1a');
+// Version
+define('VERSION', 'v2.1a');
 
-// timezone
+// Timezone
 date_default_timezone_set('Europe/Amsterdam');
 
 // Enable error reporting
@@ -24,52 +25,36 @@ require_once('classes/bot.class.php');
 require_once('classes/socket.class.php');
 require_once('classes/database.class.php');
 require_once('classes/plugin.class.php');
-require_once('classes/ini.class.php' );
 require_once('classes/timer.class.php');
 require_once('classes/commandhandler.class.php');
 
+// Includes
+include_once('parse.php');
 
-
-//include_once('loadup.php');
-/*
-loadBotData() -> return true
-loadServerData() -> return true
-closures maybe
-*/
-
-echo 'Initializing mYsTeRy '.REVISION.' ...'. PHP_EOL;
-
-$INI = Ini::getInstance();
-$g_aConfig = array(
-	'General' 	=> $INI->_getConfig('configuration/general.ini', 'General'),
-	'Bots' 		=> $INI->_getArrayConfig('bots', 'Bot'),
-	'Networks' 	=> $INI->_getArrayConfig('networks', 'Network'),
-);
-CommandHandler::getInstance();
+// init various classes
 Database::getInstance();
+CommandHandler::getInstance();
 Timer::getInstance();
-$g_aNetworks = $g_aConfig['Networks'];
-unset($g_aConfig['Networks']);
 
-foreach($g_aNetworks as $key => $value) {
-	$g_aNetworks[$g_aNetworks[$key]['Name']] = $g_aNetworks[$key];
-	unset($g_aNetworks[$key]);
-}
+echo 'Initializing mYsTeRy '.VERSION.' ...'. PHP_EOL;
 
-foreach($g_aConfig['General']['Admins'] as $sAdmin) {
-	if(!Privileges::AddBotAdmin($sAdmin))
-		Log::Error('>> Invalid ident format -> '.$sAdmin);
-}
+$Settings = parse('configuration/general.ini', 'General', false);
+$Bots = parse('configuration/bots/', 'Bot', true);
+$Network = parse('configuration/networks/', 'Network', true, 'Name');
+$iSleep = $Settings['Sleep'];
 
-echo "General & Bot configuration has been loaded.". PHP_EOL;
+$Controller = Main::getInstance();
+$Controller->_registerSettings($Settings);
+$Controller->_registerNetwork($Network);
+$Controller->_registerAdmins();
+$Controller->_initBots($Bots);
+$Controller->_initPlugins();
 
-$gHandler = Main::getInstance($g_aConfig, $g_aNetworks);
-$iSleep = $g_aConfig['General']['Sleep'];
+echo '>> Global settings have been registered. Bot(s) will connect now.' . PHP_EOL;
 
-echo "All required modules have been successfully registered.". PHP_EOL;
 
 while(true) {
-	$gHandler->_Run();
+	$Controller->_Run();
 	usleep($iSleep);
 }
 ?>

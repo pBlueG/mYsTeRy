@@ -66,20 +66,31 @@ Class Main extends Singleton
 	 * @return /
 	 * @access public
 	 */
-	public function __construct($aConfig, $aNetworks)
+	public function __construct()
 	{
-                foreach($aConfig['General'] as $key => $value) {
-                        $this->m_aSettings[$key] = $value;
-                }
-                $this->m_aNetData = $aNetworks;
-		if(!strcmp($this->m_aSettings['AdminPass'], 'defaultpass')) 
-			$this->m_aSettings['AdminPass'] = md5(time());
 		$this->m_pTimer = Timer::getInstance();
 		$this->m_pModule = Plugins::getInstance();
-                $this->_initBots($aConfig['Bots']);
-                $this->_initPlugins($this->m_aSettings['Plugins']);
+                //$this->_initBots($aConfig['Bots']);
+                //$this->_initPlugins($this->m_aSettings['Plugins']);
 	}
-	
+
+	public function _registerSettings(array $set)
+	{
+		$this->m_aSettings = $set;
+	}
+
+	public function _registerNetwork(array $nets)
+	{
+		$this->m_aNetData = $nets;
+	}
+
+	public function _registerAdmins()
+	{
+		foreach($this->m_aSettings['Admins'] as $sAdmin) {
+			if(!Privileges::AddBotAdmin($sAdmin))
+				Log::Error('>> Invalid ident format -> '.$sAdmin);
+		}
+	}
 	/**
 	 * A function to load all plugins which are listed in the settings file
 	 *
@@ -87,11 +98,11 @@ Class Main extends Singleton
 	 * @return boolean
 	 * @access private
 	 */	
-	private function _initPlugins(array $aPlugins)
+	public function _initPlugins()
 	{
-		if(empty($aPlugins)) 
+		if(empty($this->m_aSettings['Plugins']))
 			return false;
-		foreach($aPlugins as $sName) {
+		foreach($this->m_aSettings['Plugins'] as $sName) {
 			try {
 				$this->m_pModule->_load($sName);
 			}
@@ -111,7 +122,7 @@ Class Main extends Singleton
 	 * @return none
 	 * @access private
 	 */
-	private function _initBots(array $aBots)
+	public function _initBots(array $aBots)
 	{
 		foreach($aBots as $botData) {
 			$netname = $botData['Network'];

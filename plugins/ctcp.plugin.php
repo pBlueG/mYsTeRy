@@ -21,7 +21,7 @@ Class CtcpReply
 		// common CTCP requests
 		switch($request) {
 			case 'VERSION': {
-				$bot->Notice($user, 'Running mYsTeRy '.REVISION);
+				$bot->Notice($user, 'Running mYsTeRy '.VERSION);
 				break;
 			}
 			case 'PING': {

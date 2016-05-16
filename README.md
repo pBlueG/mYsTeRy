@@ -135,3 +135,5 @@ will show you all required extensions in your PHP configuration file (php.ini).
 
 
 
+### Plugin API
+
