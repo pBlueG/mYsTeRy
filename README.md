@@ -132,11 +132,31 @@ will show you all required extensions in your PHP configuration file (php.ini).
 	php_pdo_mysql.(so|dll)
 	php_pdo_sqlite.(so|dll)
 	php_openssl.(so|dll)
+	
 
 
 ### Plugin API
 
 Coming soon.
+
+	function onBotConnect($bot)
+	function onBotNotice($bot, $user, $message, $ident)
+	function onChannelMessage($bot, $channel, $user, $message, $ident)
+	function onPrivateMessage($bot, $user, $message, $ident)
+	function onInvite($bot, $user, $channel, $ident)
+	function onChannelJoin($bot, $channel, $user, $ident)
+	function onChannelPart($bot, $channel, $user, $partmsg, $ident)
+	function onChannelKick($bot, $channel, $user, $victim, $reason, $ident)
+	function onChannelMode($bot, $channel, $user, $mode, $option, $ident)
+	function onNickChange($bot, $nick, $newnick, $ident)
+	function onUserQuit($bot, $user, $quitmsg, $ident)
+	function onChannelTopic($bot, $channel, $user, $topic, $ident)
+	function onCTCPRequest($bot, $user, $request, $message, $ident)
+	function onRawEvent($bot, $rawcode, $data, $server_ident)
+	function onTick()
+	function onCommand($bot, $command, $params, $user, $recipient, $ident)
+
+
 
 ### Documentation
 
