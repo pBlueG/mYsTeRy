@@ -6,7 +6,7 @@
  * @author BlueG
  * @package mYsTeRy-v2
  * @access public
- * @version 2.0a
+ * @version 2.1a
  */
 
 Class Socket
@@ -17,7 +17,7 @@ Class Socket
 	 * @var object 
 	 * @access private
 	 */
-	private $m_oBot;
+	private $m_pBot;
 
 	/**
 	 * Integer to keep track of all received bytes
@@ -41,10 +41,10 @@ Class Socket
 	 * @var array
 	 * @access protected
 	 */
-	protected $m_aSettings = array();
+	private $m_aSettings = array();
 
 	/**
-	 * Do we use SSL or not?
+	 * Boolean to determine whether we use SSL
 	 *
 	 * @var boolean
 	 * @access private
@@ -65,16 +65,14 @@ Class Socket
 	 * @var pointer
 	 * @access protected
 	 */
-	protected $m_pSocket;
+	private $m_pSocket;
 
 	/**
-	 * Not really in use
+	 * Are we connected?
 	 *
-	 * @var mixed
+	 * @var boolean
 	 * @access private
 	 */
-	private $m_IdentD;
-
 	private $m_bConnected;
 
 
@@ -82,55 +80,98 @@ Class Socket
 	 * C'tor
 	 *
 	 * @param object $parent A pointer to the bot class
-	 * @param array $aConfig A array with all data required to connect
 	 * @access public
 	 */
-	public function __construct($pBot, array $aConfig)
+	public function __construct($pBot)
 	{
-		$this->m_oBot = $pBot;
-		$this->m_bSSL = false;
+		$this->m_pBot = $pBot;
 		$this->m_bIsConnected = false;
-		$this->m_aSettings = $aConfig;
-		if($this->m_aSettings['SSL'] == true)
-			$this->m_bSSL = true;
 	}
 
+	/**
+	 * Specifies the server/host we connect to
+	 * 
+ 	 * @param string $server
+	 * @return boolean
+	 */
+	public function _setServer($server)
+	{
+		$this->m_aSettings['Host'] = $server;
+	}
 
 	/**
-	 * This function connects to the IRC server
-	 *
+	 * Picks up a random server to connect to
+	 * 
+ 	 * @param array $server
+	 * @return boolean
+	 */
+	public function _getValidServer(array $server)
+	{
+		foreach($server as $key) {
+			if($this->_checkServer($key))
+				return $key;
+		}
+		throw new Exception('>> No valid server found, please check your network/server settings.');
+	}
+
+	/**
+	 * Checks whether the given server is reachable
+	 * 
+ 	 * @param string $server
+	 * @return boolean
+	 */
+	public function _checkServer($server)
+	{
+		$IP = gethostbyname($server);
+		if(@filter_var($IP, FILTER_VALIDATE_IP) !== FALSE)
+			return true;
+		return false;
+	}
+
+	/**
+	 * Specifies the port we are going to connect to
+	 * 
+ 	 * @param integer $port
+	 * @return boolean
+	 */
+	public function _setPort($port)
+	{
+		$this->m_aSettings['Port'] = $port;
+	}
+
+	/**
+	 * Specifies whether we use SSL
+	 * 
+ 	 * @param bool $use
+	 * @param string $path
+	 * @return boolean
+	 */
+	public function _setSSL($use, $path = NULL)
+	{
+		$this->m_bSSL = $use;	
+		if(!is_null($path))
+			$this->m_aSettings['SSL_CRT'] = $path;
+	}
+
+	/**
+	 * Creates a socket stream to our specified host
+	 * 
+ 	 * @param none
+	 * @return boolean
 	 */
 	public function _connect()
 	{
-		$sServer = $this->_select_server($this->m_aSettings['Servers']);
-		if(!$this->m_bSSL) {
-			//$this->_runIdentServer();
-			$this->m_pSocket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-			//socket_listen(
-			if($this->m_pSocket !== false) {
-				if(@socket_connect($this->m_pSocket, $sServer['Host'], $this->m_aSettings['Port'])) {
-					socket_set_nonblock($this->m_pSocket);
-					$this->m_bIsConnected = true;
-					return true;
-				}
-			}
-		} else {
-			// Create the stream context for a SSL connection
-			$context = stream_context_create();
-
+		$context = stream_context_create();
+		if($this->m_bSSL) {
 			//http://www.php.net/manual/en/context.ssl.php - for further reference
 			stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
 			stream_context_set_option($context, 'ssl', 'local_cert', __DIR__ . $this->m_aSettings['SSL_CRT']);
-			//stream_context_set_option($context, array('ssl' => array('allow_self_signed' => true, 'local_cert' => $this->m_aSettings['SSL_CRT'])));
-
-			// Attempt to connect
-			$this->m_pSocket = @stream_socket_client('ssl://'.$sServer['Host'].':6697', $errno, $errstr, 3.0, STREAM_CLIENT_CONNECT, $context);
-			if($this->m_pSocket !== false) {
-				// Our connection attempt was successful
-				stream_set_blocking($this->m_pSocket, 0);
-				$this->m_bIsConnected = true;
-				return true;
-			}
+		}
+		$this->m_pSocket = @stream_socket_client(($this->m_bSSL ? 'ssl' : 'tcp').'://'.$this->m_aSettings['Host'].':'.$this->m_aSettings['Port'], $errno, $errstr, 3.0, STREAM_CLIENT_CONNECT, $context);
+		if($this->m_pSocket !== false) {
+			stream_set_blocking($this->m_pSocket, 0);
+			$this->m_bIsConnected = true;
+			return true;
 		}
 		return false;
 	}
@@ -145,88 +186,71 @@ Class Socket
 	{
 		if(!$this->_isConnected()) 
 			return false;
-		$this->_send('QUIT :'. (func_num_args() > 0 ? func_get_arg(0) : ''));
-		if(!$this->m_bSSL) 
-			socket_close($this->m_pSocket);
-		else 
-			stream_socket_shutdown($this->m_pSocket, STREAM_SHUT_RDWR);
+		$this->m_pBot->Quit((func_num_args() > 0 ? func_get_arg(0) : ''));
+		stream_socket_shutdown($this->m_pSocket, STREAM_SHUT_RDWR);
 		$this->m_pSocket = NULL;
 		$this->m_bIsConnected = false;
 		return true;
 	}
 
+	/**
+	 * Check whether the bot is connected
+	 * 
+ 	 * @param none
+	 * @return boolean
+	 */
 	public function _isConnected()
 	{
 		return $this->m_bIsConnected;
 	}
-			
-	public function _rawData() 
+
+	/**
+	 * This function receives data from our socket stream
+	 * 
+ 	 * @param none
+	 * @return boolean
+	 */			
+	public function _receive() 
 	{
-		if(!$this->_isConnected()) 
-			return false;
-		if($this->m_bSSL) {
-			if(($sData = @fread($this->m_pSocket, 2048)) === FALSE) {
-				$this->_disconnect();
+		if(($sData = @fread($this->m_pSocket, 2048)) !== FALSE) {
+			if(empty($sData) || $sData == "\n") 
 				return;
+			$aRaw = explode("\n", $sData);
+			//if(count($aRaw) == 1) 
+			//	return;
+			unset($aRaw[(count($aRaw)-1)]);
+			foreach($aRaw as $sRawline) {
+				$this->m_pBot->_EventHandler(trim($sRawline));
+				$this->m_gBytesReceived += strlen($sRawline);
 			}
-		} else {
-			/*$aClients = array($this->m_IdentD);
-			$testicle = socket_select($aClients, $write=NULL, $except=NULL, 0);
-			if (socket_select($aClients, $write, $except, 0) > 0) {
-				if(in_array($this->m_IdentD, $aClients)) {
-					$irc_ident_check = socket_accept($this->m_IdentD);
-					echo "Listening to ".$irc_ident_check;
-				}
-				
-				
-			}*/
-			if(socket_last_error($this->m_pSocket) == 104) {
-				$this->_disconnect();
-				return;
-			}
-			$sData = @socket_read($this->m_pSocket, 2048/*, PHP_NORMAL_READ*/);
+			return true;
 		}
-		if(empty($sData) || $sData == "\n") return;
-		$aRaw = explode("\n", $sData);
-		if(count($aRaw) == 1) return;
-		unset($aRaw[(count($aRaw)-1)]);
-		foreach($aRaw as $sRawline) {
-			$this->m_oBot->_EventHandler(trim($sRawline));
-			$this->m_gBytesReceived += strlen($sRawline);
-		}
-		return true;
+		return false;
 		
 	}
 
+	/**
+	 * This function send data to our socket stream
+	 * 
+ 	 * @param string $command 
+	 * @return boolean
+	 */	
 	public function _send($command)
 	{
 		if(!$this->_isConnected()) 
 			return false;
-		if(!$this->m_bSSL)
-			socket_write($this->m_pSocket, $command."\r\n");
-		else
-			//stream_socket_sendto($this->m_pSocket, $command. "\r\n");
-			fwrite($this->m_pSocket, $command. "\r\n");
+		fwrite($this->m_pSocket, $command. "\r\n");
 		$this->m_gBytesSent += strlen($command);
 		return true;
 	}
 
-	private function _select_server(array $aServers)
-	{
-		if(count($aServers) > 1) shuffle($aServers);
-		foreach($aServers as $sHost) {
-			$sIPv4 = gethostbyname($sHost);
-			if(@filter_var($sIPv4, FILTER_VALIDATE_IP) !== FALSE) {
-				return ($aServer = array('Host' => $sHost, 'IP' => $sIPv4));
-			}
-		}
-		Log::Error('-- No valid server found to connect. Check your server settings:'.PHP_EOL.var_export($aServers, true).PHP_EOL);
-		exit();
-		return;
-			
-	}
-
-	protected function _print_stats()
+	/**
+	 * Tells us how many bytes we received/sent yet
+	 * 
+ 	 * @param none
+	 * @return boolean
+	 */
+	private function _print_stats()
 	{
 		//$pLog = Log::getInstance();
 		//return $pLog->_L('--'.PHP_EOL.'Total Bytes Received: '.$this->m_gBytesReceived.' / Sent: '.$this->m_gBytesSent.PHP_EOL.'--'.PHP_EOL);

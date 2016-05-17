@@ -51,36 +51,51 @@ Class Bot implements RawEvents, ColorCodes
 	 */
 	public $m_aPing = array();	
 
-	public function __construct($aServerInfo, $aBotInfo, $auto_connect = true)
+	public function __construct($aServerInfo, $aBotInfo)
 	{
 		$this->m_aNetwork = $aServerInfo;
-		$this->pSocket = new Socket($this, $this->m_aNetwork);
-		foreach($aBotInfo as $key => $value)
+		foreach($aBotInfo as $key => $value) {
 			$this->m_aBotInfo[$key] = $value;
-		unset($aBotInfo);
+		}
 		$this->m_bIsConnected = false;
-		if($auto_connect) 
-			$this->_connectBot();
 		$this->m_aPing['PingID'] = uniqid('p');
+		$this->_install();
+		$this->_connect();
 	}
 
-	public function _connectBot()
+	private function _install()
 	{
+		$this->pSocket = new Socket($this);
+		$this->pSocket->_setPort($this->m_aNetwork['Port']);
+		$this->pSocket->_setSSL($this->m_aNetwork['SSL'], $this->m_aNetwork['SSL_CRT']);
+		try {
+			$this->pSocket->_setServer(
+				$this->pSocket->_getValidServer($this->m_aNetwork['Servers'])
+			);
+		} catch (Exception $e) {
+			Log::Error($e->getMessage());
+			die;
+		}
+	}
+
+	public function _connect()
+	{
+
 		if($this->pSocket->_connect()) {
 			$this->m_aPing['Uptime'] = time();
 			// register bot info on the network
-			$this->Pass(substr(md5(time()), 0, 10));
+			$this->Pass(time());
 			$this->Nick($this->m_aBotInfo['Nick']);
 			$this->User($this->m_aBotInfo['Username'], $this->m_aBotInfo['Realname']);
 			return true;
 		}
 		Log::Error(date('[H:i:s]').' Bot '.$this->m_aBotInfo['Nick'].' couldn\'t connect to '.$this->m_aNetwork['Name'].' (connect error @ logs/debug.log). Trying again in 5 seconds..');
 		$Timer = Timer::getInstance();
-		$Timer->_add($this, "_connectBot", $Timer::NO_ARGUMENTS, 5);
+		$Timer->_add($this, "_connect", $Timer::NO_ARGUMENTS, 5);
 		return false;
 	}
 
-	public function _disconnectBot()
+	public function _disconnect()
 	{
 		if($this->_isConnected()) {
 			$this->m_bIsConnected = false;
@@ -89,11 +104,11 @@ Class Bot implements RawEvents, ColorCodes
 		return false;
 	}
 
-	public function _reconnectBot()
+	public function _reconnect()
 	{
 		if($this->_isConnected()) {
-			$this->_disconnectBot($this->m_aBotInfo['Quit']);
-			$this->_connectBot();
+			$this->_disconnect($this->m_aBotInfo['Quit']);
+			$this->_connect();
 			return true;
 		}
 		return false;	
@@ -109,7 +124,7 @@ Class Bot implements RawEvents, ColorCodes
 		return $this->m_bIsConnected;
 	}
 	
-	public function _Ping()
+	public function _ping()
 	{
 		if($this->_isConnected()) 
 			return $this->Notice($this->m_aBotInfo['Nick'], $this->m_aPing['PingID']);
@@ -303,9 +318,9 @@ Class Bot implements RawEvents, ColorCodes
 		
 	}
 
-	public function _Update()
+	public function _update()
 	{
-		return $this->pSocket->_rawData();
+		return $this->pSocket->_receive();
 	}
 
 	public function __call($method, $args)

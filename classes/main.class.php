@@ -128,7 +128,7 @@ Class Main extends Singleton
 			$netname = $botData['Network'];
 			if(array_key_exists(strtolower($netname), array_change_key_case($this->m_aNetData, CASE_LOWER))) {
 				$this->m_aBots[] = new Bot($this->m_aNetData[$netname], $botData);
-				$this->m_pTimer->_add(end($this->m_aBots), '_Ping', 0, $this->m_aSettings['Ping'], true);
+				$this->m_pTimer->_add(end($this->m_aBots), '_ping', 0, $this->m_aSettings['Ping'], true);
 			} else
 				Log::Error(__METHOD__.'-> Bot `'.$botData['Nick'].'` can\'t connect:'.PHP_EOL.'>> Please check network settings for `'.$netname.'`');
 		}
@@ -180,7 +180,7 @@ Class Main extends Singleton
 	public final function _Run()
 	{
 		foreach($this->m_aBots as $pFamilyMember) {
-			$pFamilyMember->_Update();
+			$pFamilyMember->_update();
 			//if(!$pFamilyMember->_isChild()) 
 			//	$pFamilyMember->_triggerPluginEvent("onTick");
 		}

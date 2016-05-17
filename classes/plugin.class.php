@@ -96,7 +96,6 @@ Class Plugins extends Singleton
 		}
 		/*$szContent = preg_replace('/(\/\*)(.*?)(\*\/)/isU', '', $szContent);
 		$szContent = preg_replace('/^(\/\/)(.*?)$/m', '', $szContent);*/
-		file_put_contents('abc.txt', $szContent);
 		// This is a bit tricky, we will have to evaluate the class
 		eval(
 			$szContent . '
