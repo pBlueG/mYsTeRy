@@ -82,10 +82,17 @@ Class Socket
 	 * @param object $parent A pointer to the bot class
 	 * @access public
 	 */
-	public function __construct($pBot)
+	public function __construct(Bot $pBot)
 	{
 		$this->m_pBot = $pBot;
 		$this->m_bIsConnected = false;
+		$this->m_aSettings = array(
+			'Host'		=> '',
+			'Port'		=> 0,
+			'SSL'		=> false,
+			'SSL_CRT'	=> NULL,
+			'BindIP'	=> NULL
+		);
 	}
 
 	/**
@@ -148,9 +155,21 @@ Class Socket
 	 */
 	public function _setSSL($use, $path = NULL)
 	{
-		$this->m_bSSL = $use;	
+		$this->m_aSettings['SSL'] = $use;	
 		if(!is_null($path))
 			$this->m_aSettings['SSL_CRT'] = $path;
+	}
+
+
+	/**
+	 * Specifies the IP & port php is going to use to access the network
+	 * 
+ 	 * @param integer $port
+	 * @return boolean
+	 */
+	public function _setBindTo($ip)
+	{
+		$this->m_aSettings['BindIP'] = $ip;
 	}
 
 	/**
@@ -162,12 +181,14 @@ Class Socket
 	public function _connect()
 	{
 		$context = stream_context_create();
-		if($this->m_bSSL) {
+		if($this->m_aSettings['SSL']) {
 			//http://www.php.net/manual/en/context.ssl.php - for further reference
 			stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
 			stream_context_set_option($context, 'ssl', 'local_cert', __DIR__ . $this->m_aSettings['SSL_CRT']);
 		}
-		$this->m_pSocket = @stream_socket_client(($this->m_bSSL ? 'ssl' : 'tcp').'://'.$this->m_aSettings['Host'].':'.$this->m_aSettings['Port'], $errno, $errstr, 3.0, STREAM_CLIENT_CONNECT, $context);
+		if(!is_null($this->m_aSettings['BindIP']))
+			stream_context_set_option($context, 'socket', 'bindto', $this->m_aSettings['BindIP']);
+		$this->m_pSocket = @stream_socket_client(($this->m_aSettings['SSL'] ? 'ssl' : 'tcp').'://'.$this->m_aSettings['Host'].':'.$this->m_aSettings['Port'], $errno, $errstr, 3.0, STREAM_CLIENT_CONNECT, $context);
 		if($this->m_pSocket !== false) {
 			stream_set_blocking($this->m_pSocket, 0);
 			$this->m_bIsConnected = true;

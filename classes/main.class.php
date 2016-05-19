@@ -150,7 +150,7 @@ Class Main extends Singleton
 	 * @return array 
 	 * @access public
 	 */
-	public function _createChild($nickname, $altnick, $username, $realname, $password, $channels = array(), $ctcp = array(), $netname)
+	protected function _createChild($nickname, $altnick, $username, $realname, $password, $channels = array(), $ctcp = array(), $netname)
 	{
 		$aChild = array(
 			'Nick'		=> $nickname,
@@ -177,7 +177,7 @@ Class Main extends Singleton
 	 * @return none
 	 * @access public
 	 */
-	public final function _Run()
+	final public function _Run()
 	{
 		foreach($this->m_aBots as $pFamilyMember) {
 			$pFamilyMember->_update();

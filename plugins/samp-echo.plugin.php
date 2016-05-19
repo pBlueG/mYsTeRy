@@ -19,16 +19,18 @@ Class SAMPEcho extends Main
 	private $m_bCheck = false;
 	private $m_sFile;
 	private $m_childIndex = array();
+	private $m_pBase;
 
 	public function __construct()
 	{
-		$this->m_pConfig = Ini::getInstance()->_getConfig('configuration/sa-mp.echo.ini', 'Echo');
+		$this->m_pBase = Main::getInstance();
+		$this->m_pConfig = parse('configuration/sa-mp.echo.ini', 'Echo', false);
 		$this->m_sFile = $this->m_pConfig['file_directory'].$this->m_pConfig['file_name'];
 		$this->m_bCheck = file_exists($this->m_sFile);
 		if($this->m_pConfig['child_bots'] > 0) {
 			for($idx = 0; $idx < $this->m_pConfig['child_bots'];$idx++) {
 				$sNick = sprintf($this->m_pConfig['child_name'].$this->m_pConfig['child_prefix'], ($idx+1));
-				Main::getInstance()->_createChild(
+				parent::_createChild(
 					$sNick, 
 					$sNick.'_', 
 					$sNick, 
@@ -38,8 +40,8 @@ Class SAMPEcho extends Main
 					array(), 
 					$this->m_pConfig['Network']
 				);
-				end(Main::getInstance()->m_aBots);
-				$this->m_childIndex[] = key(Main::getInstance()->m_aBots);
+				end($this->m_pBase->m_aBots);
+				$this->m_childIndex[] = key($this->m_pBase->m_aBots);
 			}
 		}
 		if($this->m_pConfig['auto_start'])
@@ -49,15 +51,15 @@ Class SAMPEcho extends Main
 	public function __destruct()
 	{
 		foreach($this->m_childIndex as $idx) {
-			Main::getInstance()->m_aBots[$idx]->Quit("Leaving. o/");
-			unset(Main::getInstance()->m_aBots[$idx]);
+			$this->m_pBase->m_aBots[$idx]->Quit("Leaving. o/");
+			unset($this->m_pBase->m_aBots[$idx]);
 		}
 	}
 
 	private function _getRandomBot()
 	{
 		$rand = array_rand($this->m_childIndex);
-		return Main::getInstance()->m_aBots[$this->m_childIndex[$rand]];
+		return $this->m_pBase->m_aBots[$this->m_childIndex[$rand]];
 	}
 		
 	private function _enableEcho()

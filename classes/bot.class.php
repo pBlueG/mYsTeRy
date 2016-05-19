@@ -68,6 +68,8 @@ Class Bot implements RawEvents, ColorCodes
 		$this->pSocket = new Socket($this);
 		$this->pSocket->_setPort($this->m_aNetwork['Port']);
 		$this->pSocket->_setSSL($this->m_aNetwork['SSL'], $this->m_aNetwork['SSL_CRT']);
+		if(isset($this->m_aNetwork['BindIP']))
+			$this->pSocket_setBindTo($this->pSocket['BindIP']);
 		try {
 			$this->pSocket->_setServer(
 				$this->pSocket->_getValidServer($this->m_aNetwork['Servers'])
