@@ -18,7 +18,7 @@ require_once('classes/singleton.class.php');
 require_once('classes/log.class.php');
 set_error_handler('Log::DebugHandler', E_ALL);
 require_once('classes/privileges.class.php');
-require_once('classes/commands.class.php');
+require_once('classes/rawcommands.class.php');
 require_once('classes/misc.class.php');
 require_once('classes/main.class.php');
 require_once('classes/bot.class.php');

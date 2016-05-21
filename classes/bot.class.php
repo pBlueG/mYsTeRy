@@ -327,10 +327,10 @@ Class Bot implements RawEvents, ColorCodes
 
 	public function __call($method, $args)
 	{
-		if(method_exists('Commands', $method)) {
+		if(method_exists('RawCommands', $method)) {
 			try {
 				// allows us to call non-existing methods: $bot->Say() $bot->Notice() etc.
-				$pMethod = new ReflectionMethod('Commands', $method);
+				$pMethod = new ReflectionMethod('RawCommands', $method);
 				$sCommand = $pMethod->invokeArgs(NULL, $args);
 				$this->_sendCommand($sCommand);
 				unset($pMethod);

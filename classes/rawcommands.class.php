@@ -10,7 +10,7 @@
  * @version 2.0a
  */
 
-Class Commands implements ColorCodes
+Class RawCommands implements ColorCodes
 {
 	private static $m_aReplaceBB = 
 		array (
