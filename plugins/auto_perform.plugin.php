@@ -10,7 +10,7 @@
  * @version 2.0a
  */
 
-Class AutoPerform
+Class AutoPerform extends Main
 {
 	public function __construct() 
 	{

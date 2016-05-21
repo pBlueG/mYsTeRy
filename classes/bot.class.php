@@ -195,7 +195,7 @@ Class Bot implements RawEvents, ColorCodes
 						$sChannel = $sSplit[2];
 						$ptr->_triggerEvent($this, "onChannelMessage", $sChannel, $sUser, $sMessage, $sIdent);
 					} else {
-						$sCheck = explode(' ', $sMessage);
+						$sCheck = @explode(' ', $sMessage);
 						if(!strcasecmp($sCheck[0], 'login') && !Privileges::IsBotAdmin($sIdent)) {
 							if(!strcmp(Main::getInstance()->m_aSettings['AdminPass'], implode(' ', array_slice($sCheck, 1)))) {
 								Privileges::AddBotAdmin($sIdent);
@@ -280,6 +280,13 @@ Class Bot implements RawEvents, ColorCodes
 				$sTopic = substr(implode(' ', array_slice($sSplit, 3)), 1);
 				$ptr->_triggerEvent($this, "onChannelTopic", $sChannel, $sUser, $sTopic, $sIdent);
 				break;
+			case self::WELCOME_MSG:
+				$this->_sendCommand('MODE '.$this->m_aBotInfo['Nick'].' +B');
+				foreach($this->m_aBotInfo['Channels'] as $Channel)
+					$this->Join($Channel);
+				$this->m_bIsConnected = true;
+				$ptr->_triggerEvent($this, "onBotConnect");
+				break;
 			case self::NAMES_LIST:
 				if($this->_isChild()) 
 					return;
@@ -294,15 +301,6 @@ Class Bot implements RawEvents, ColorCodes
 			case self::NICKNAME_ALREADY_IN_USE:
 				Log::Error(date('[H:i:s]').' Nickname is already in use. Using alternative nick ('.$this->m_aBotInfo['AltNick'].')');
 				$this->Nick($this->m_aBotInfo['AltNick']);
-				break;
-			case self::END_MOTD:
-				if(!$this->_isConnected()) {
-					$this->_sendCommand('MODE '.$this->m_aBotInfo['Nick'].' +B');
-					foreach($this->m_aBotInfo['Channels'] as $Channel)
-						$this->Join($Channel);
-					$this->m_bIsConnected = true;
-					$ptr->_triggerEvent($this, "onBotConnect");
-				}
 				break;
 			case self::CHANNEL_REQ_KEY:
 				$sChannel = $sSplit[3];

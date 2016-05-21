@@ -55,23 +55,11 @@ Class Misc
 		return (substr($string, 0, 1) == '#' && strlen($string) > 1);
 	}
 
-	// (c) http://www.if-not-true-then-false.com/2009/format-bytes-with-php-b-kb-mb-gb-tb-pb-eb-zb-yb-converter/
-	public function formatBytes($bytes, $unit = "", $decimals = 2) 
+	function formatBytes($size)
 	{
-		$units = array('B' => 0, 'KB' => 1, 'MB' => 2, 'GB' => 3, 'TB' => 4);
-		$value = 0;
-		if($bytes > 0) {
-			if(!array_key_exists($unit, $units)) {
-				$pow = floor(log($bytes)/log(1024));
-				$unit = array_search($pow, $units);
-			}
-			$value = ($bytes/pow(1024,floor($units[$unit])));
-		}
-		if(!is_numeric($decimals) || $decimals < 0) {
-			$decimals = 2;
-		}
-		return sprintf('%.' . $decimals . 'f '.$unit, $value);
-  	}
+    		$unit = array('b','kb','mb','gb','tb','pb');
+    		return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+	}
 
 
 }

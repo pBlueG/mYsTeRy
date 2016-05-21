@@ -39,6 +39,7 @@ Class CommandHandler extends Singleton
 
 	public function _commandExists($sCommand)
 	{
+		reset($this->m_aCommands);
 		while($aCommand = current($this->m_aCommands)) {
 			if(!strcasecmp($aCommand['command'], $sCommand)) {
 				if(func_num_args() > 1) {
@@ -50,7 +51,6 @@ Class CommandHandler extends Singleton
 			}
 			next($this->m_aCommands);
 		}	
-		reset($this->m_aCommands);
 		return false;
 	}
 
@@ -150,38 +150,13 @@ Class CommandHandler extends Singleton
 		foreach($this->m_aCommands as $aCommand) {
 			if(!strcasecmp($aCommand['command'], $sCommand) && ($bot instanceof Bot)) {
 				$RequiredPrivilege = $aCommand['privilege'];
-				$bIsAdmin = Privileges::IsBotAdmin($sIdent);
-				$bExecute = false;
-				if($RequiredPrivilege > 0 && !$bIsAdmin && Misc::isChannel($sRecipient)) {
-					//$UserPrivilege = Privileges::GetUserPrivilege($sUser, $sRecipient);
-					switch($RequiredPrivilege) {
-						case Privileges::LEVEL_VOICE:
-							$bExecute = Privileges::IsVoiced($sUser, $sRecipient);
-							break;
-						case Privileges::LEVEL_HALFOP:
-							$bExecute = Privileges::IsHalfop($sUser, $sRecipient);
-							break;
-						case Privileges::LEVEL_OPERATOR:
-							$bExecute = Privileges::IsOperator($sUser, $sRecipient);
-							break;
-						case Privileges::LEVEL_SUPER_OPERATOR:
-							$bExecute = Privileges::IsSuperOperator($sUser, $sRecipient);
-							break;
-						case Privileges::LEVEL_OWNER:
-							$bExecute = Privileges::IsOwner($sUser, $sRecipient);
-							break;
-						default: 
-							break;
-					}
-				}
 				$bExists = true;
-				if($bExecute || !$RequiredPrivilege || $bIsAdmin) {
+				if(Privileges::IsBotAdmin($sIdent) || !$RequiredPrivilege || (Misc::isChannel($sRecipient) && Privileges::GetUserPrivilege($sUser, $sRecipient) >= $RequiredPrivilege)) {
 					if(array_key_exists('callback', $aCommand))
 						call_user_func_array(array($aCommand['class'], $aCommand['callback']), array($bot, $sUser, $sRecipient, $aParams, $sIdent));
 					else
 						//$aCommand['closure']($bot, $sCommand, $aParams, $sUser, $sRecipient, $sIdent);
 						call_user_func($aCommand['closure'], $bot, $sCommand, $aParams, $sUser, $sRecipient, $sIdent);
-						//eval($aCommand['code']); // evil eval!
 				}
 				break;
 			}

@@ -31,6 +31,9 @@ require_once('classes/commandhandler.class.php');
 // Includes
 include_once('parse.php');
 
+if(version_compare(PHP_VERSION, '5.3.0') == -1)
+    die('>> mYsTeRy requires at least PHP version 5.3 (Your current version: '.PHP_VERSION.')');
+
 // init various classes
 Database::getInstance();
 CommandHandler::getInstance();
