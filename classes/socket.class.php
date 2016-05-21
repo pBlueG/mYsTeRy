@@ -127,7 +127,7 @@ Class Socket
  	 * @param string $server
 	 * @return boolean
 	 */
-	public function _checkServer($server)
+	private function _checkServer($server)
 	{
 		$IP = gethostbyname($server);
 		if(@filter_var($IP, FILTER_VALIDATE_IP) !== FALSE)
