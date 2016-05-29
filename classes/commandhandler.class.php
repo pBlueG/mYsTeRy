@@ -148,7 +148,7 @@ Class CommandHandler extends Singleton
 	{
 		$bExists = false;
 		foreach($this->m_aCommands as $aCommand) {
-			if(!strcasecmp($aCommand['command'], $sCommand) && ($bot instanceof Bot)) {
+			if(!strcasecmp($aCommand['command'], $sCommand) && ($bot instanceof Bot) && $bot->_isConnected()) {
 				$RequiredPrivilege = $aCommand['privilege'];
 				$bExists = true;
 				if(Privileges::IsBotAdmin($sIdent) || !$RequiredPrivilege || (Misc::isChannel($sRecipient) && Privileges::GetUserPrivilege($sUser, $sRecipient) >= $RequiredPrivilege)) {

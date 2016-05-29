@@ -167,7 +167,7 @@ Class Main extends Singleton
 			$this->m_aBots[] = new Bot($this->m_aNetData[$netname], $aChild);
 			return end($this->m_aBots);
 		} else
-			return Log::Error(__METHOD__.'-> Bot `'.$botData['Nick'].'` can\'t connect:'.PHP_EOL.'>> Please check network settings for `'.$netname.'`');
+			return Log::Error(__METHOD__.'-> Bot `'.$aChild['Nick'].'` can\'t connect:'.PHP_EOL.'>> Please check network settings for `'.$netname.'`');
 	}
 
 	/**

@@ -19,8 +19,10 @@ Class AutoPerform extends Main
 
 	public function onBotConnect($bot)
 	{
-		foreach($bot->m_aBotInfo['Commands'] as $Command) {
-			$bot->_sendCommand($Command);
+		if(array_key_exists('Commands', $bot->m_aBotInfo)) {
+			foreach($bot->m_aBotInfo['Commands'] as $Command) {
+				$bot->_sendCommand($Command);
+			}
 		}
 	}
 

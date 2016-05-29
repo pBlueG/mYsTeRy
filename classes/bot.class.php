@@ -60,7 +60,6 @@ Class Bot implements RawEvents, ColorCodes
 		$this->m_bIsConnected = false;
 		$this->m_aPing['PingID'] = uniqid('p');
 		$this->_install();
-		$this->_connect();
 	}
 
 	private function _install()
@@ -78,6 +77,7 @@ Class Bot implements RawEvents, ColorCodes
 			Log::Error($e->getMessage());
 			die;
 		}
+		$this->_connect();
 	}
 
 	public function _connect()

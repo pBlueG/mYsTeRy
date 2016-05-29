@@ -30,7 +30,7 @@ Class SAMPEcho extends Main
 		if($this->m_pConfig['child_bots'] > 0) {
 			for($idx = 0; $idx < $this->m_pConfig['child_bots'];$idx++) {
 				$sNick = sprintf($this->m_pConfig['child_name'].$this->m_pConfig['child_prefix'], ($idx+1));
-				parent::_createChild(
+				$this->m_pBase->_createChild(
 					$sNick, 
 					$sNick.'_', 
 					$sNick, 
@@ -136,18 +136,17 @@ Class SAMPEcho extends Main
 					} else {
 						$this->m_pConfig['ticks_echo'] = $params[0];
 						$bot->Say($recipient, ">> Tickrate has been changed");
-					}
+						}
 				}
 			case '!say':
 				if(count($params) > 0 && $this->m_bEcho) {
 					$sMessage = '[msg] '.$user.' on IRC: '.implode(' ', $params);
-					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage);
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], $sMessage, FILE_APPEND);
 				}
 				break;	
 			case '!players':
-				if(count($params) > 0 && $this->m_bEcho) {
-					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], "[players]\r\n");
-				}
+				if($this->m_bEcho)
+					file_put_contents($this->m_pConfig['file_directory'].$this->m_pConfig['file_pawn'], "[players]", FILE_APPEND);
 				break;
 			case '!pm':
 				if($this->m_bEcho) {
