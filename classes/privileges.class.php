@@ -182,8 +182,7 @@ Class Privileges
 	{ 
 		if(in_array($sIdent, self::$m_aAdmins))
 			return true;
-		else
-			return false;
+		return false;
 	}
 
 	public static function AddBotAdmin($sIdent)

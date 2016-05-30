@@ -7,7 +7,7 @@
  * @author BlueG
  * @package mYsTeRy-v2
  * @access public
- * @version 2.0a
+ * @version 2.1a
  */
 
 Class SAMPEcho extends Main
@@ -136,7 +136,7 @@ Class SAMPEcho extends Main
 					} else {
 						$this->m_pConfig['ticks_echo'] = $params[0];
 						$bot->Say($recipient, ">> Tickrate has been changed");
-						}
+					}
 				}
 			case '!say':
 				if(count($params) > 0 && $this->m_bEcho) {

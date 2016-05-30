@@ -1,11 +1,19 @@
-// (c) 2009, BlueG
-// updated 2014 BlueG
+/**
+ * SA-MP IRC echo script
+ * - reads and parses IRC data
+ *
+ * @author BlueG (2009, updated in 2014 and 2016)
+ * @package mYsTeRy-v2
+ * @access public
+ * @version 2.1a
+ */
+
 
 #include <a_samp>
 
 #define COLOR 0xFFFFFF
-#define MAX_IRC_NAME 30 //FFSNetwork NICKLEN=30
-#define IRC_ACTION_FILE "commands.txt"
+#define MAX_IRC_NAME 31 //IRC.tl -> NICKLEN=31
+#define IRC_ACTION_FILE "irc.txt"
 #define NULL 0
 
 #define isnull(%1) \
@@ -16,6 +24,28 @@ new g_maxPlayers,
 	File:log;
 
 public ReadActions();
+
+new pColor[MAX_PLAYERS];
+
+// IRC colors
+new aColors[][11] = {
+	{"white"},
+	{"black"},
+	{"blue"},
+	{"green"},
+	{"red"},
+	{"brown"},
+	{"purple"},
+	{"orange"},
+	{"yellow"},
+	{"lightgreen"},
+	{"teal"},
+	{"lightcyan"},
+	{"lightblue"},
+	{"pink"},
+	{"grey"},
+	{"silver"}
+};
 
 new aWeaponNames[][32] = {
 	{"Unarmed (Fist)"}, // 0
@@ -78,7 +108,7 @@ public OnFilterScriptInit()
 	        seekPosition += iLen;
 		fclose(log);
 	}
-	SetTimer("ProcessIRCRequests", 2000, true);
+	SetTimer("ProcessIRCRequests", 1000, true);
 	g_maxPlayers = GetMaxPlayers();
 	return 1;
 }
@@ -98,8 +128,7 @@ stock GetPlayerCount()
 public ProcessIRCRequests();
 public ProcessIRCRequests()
 {
-	new
-		string[256],
+	new string[256],
 		idx = 0,
 		reason[128],
 		action[32],
@@ -107,7 +136,7 @@ public ProcessIRCRequests()
 		playerid,
 		pName[MAX_PLAYER_NAME],
 		message[128],
-		sLen;
+  		sLen;
 	if(fexist(IRC_ACTION_FILE)) {
 	    log = fopen(IRC_ACTION_FILE, io_read);
 		fseek(log, seekPosition, seek_start);
@@ -150,6 +179,11 @@ public ProcessIRCRequests()
 							}
 						}
 					}
+					if(pCount > 0)
+						strdel(szPlayers, strlen(szPlayers)-1, strlen(szPlayers));
+					else
+					    format(szPlayers, sizeof szPlayers, "No players online.");
+					WriteEcho(szPlayers);
 				}
 				if(!strcmp(action, "[pm]", true)) {
 				    playerid = ReturnUser(strtok(string, idx));
@@ -192,6 +226,7 @@ public OnPlayerConnect(playerid)
 	new string[256];
 	format(string, sizeof string, "[b][%d][/b][color=blue] *** %s has joined the server", playerid, Playername(playerid));
 	WriteEcho(string);
+	pColor[playerid] = random(sizeof(aColors));
 	return 1;
 }
 
@@ -222,7 +257,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 public OnPlayerText(playerid, text[])
 {
 	new string[256];
-	format(string, sizeof string, "[color=lightblue][%d] [color=lightblue]%s: [color=black]%s", playerid, Playername(playerid), text);
+	format(string, sizeof string, "[color=lightblue][%d] [color=%s]%s: [color=black]%s", playerid, aColors[pColor[playerid]], Playername(playerid), text);
 	WriteEcho(string);
 	return 1;
 }
@@ -241,7 +276,7 @@ WriteEcho(string[])
 	return 1;
 }
 
-Playername(playerid)
+stock Playername(playerid)
 {
 	new pName[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, pName, sizeof pName);
@@ -266,6 +301,7 @@ IsNumeric(const string[])
 	return 1;
 }
 
+// (c) Y_Less
 ReturnUser(text[], playerid = INVALID_PLAYER_ID)
 {
 	new pos = 0;

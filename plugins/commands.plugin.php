@@ -24,12 +24,15 @@ Class Commands
 			->_registerCommand('!plugins', $this, 'plugins', Privileges::LEVEL_BOT_ADMIN, 'Displays a list of all active plugin instances.')
 			->_registerCommand('!ident', $this, 'ident', Privileges::LEVEL_NONE, 'Shows your current ident.')
 			->_registerCommand('!mem', $this, 'mem', Privileges::LEVEL_NONE, 'Shows the bots current memory usage.')
-			->_registerCommand('!uptime', $this, 'uptime', Privileges::LEVEL_NONE, 'Shows how long the bot has been up.');
+			->_registerCommand('!uptime', $this, 'uptime', Privileges::LEVEL_NONE, 'Shows how long the bot has been up.')
+			->_registerCommand('!help', $this, 'help', Privileges::LEVEL_NONE, 'Commands help.');
 		echo '>> Commands plugin has been loaded.' . PHP_EOL;
 	}
 
 	public function cmds($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(Privileges::IsBotAdmin($sIdent))
 			$priv = Privileges::LEVEL_BOT_ADMIN;
 		else
@@ -39,6 +42,8 @@ Class Commands
 
 	public function join($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(count($aParams) < 1)
 			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !join (#channel) [key]");
 		else
@@ -50,6 +55,8 @@ Class Commands
 
 	public function part($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(count($aParams) < 1)
 			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !part (#channel) [part message]");
 		else
@@ -61,6 +68,8 @@ Class Commands
 
 	public function quit($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(is_array($aParams))
 			$bot->Quit(implode(" ", $aParams));
 		else
@@ -69,6 +78,8 @@ Class Commands
 
 	public function boteval($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(is_array($aParams)) {
 			$sEval = implode(" ", $aParams);
 			ob_start();
@@ -85,6 +96,8 @@ Class Commands
 
 	public function addcmd($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(count($aParams) < 3) {
 			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !addcmd (command) (privilege) (phpcode)");
 		} else {
@@ -107,6 +120,8 @@ Class Commands
 
 	public function delcmd($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(count($aParams) < 1) {
 			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !delcmd (command)");
 		} else {
@@ -119,6 +134,8 @@ Class Commands
 
 	public function load($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(count($aParams) < 1) {
 			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !load (plugin name)");
 		} else {
@@ -151,6 +168,8 @@ Class Commands
 
 	public function unload($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		if(count($aParams) < 1) {
 			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !unload (plugin name)");
 		} else {
@@ -166,6 +185,8 @@ Class Commands
 
 	public function plugins($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		$sPlugins = NULL;
 		$ptr = Plugins::getInstance();
 		reset($ptr->m_aPlugins);
@@ -183,6 +204,8 @@ Class Commands
 
 	public function ident($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		$bot->Notice(
 			$sUser, 
 			"Your ident is ".$sIdent
@@ -191,6 +214,8 @@ Class Commands
 
 	public function mem($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		$bot->Say(
 			$sRecipient, 
 			"Current memory usage is [b]".Misc::formatBytes(memory_get_usage(), "MB")."[/b]"
@@ -199,11 +224,34 @@ Class Commands
 
 	public function uptime($bot, $sUser, $sRecipient, $aParams, $sIdent)
 	{
+		if($bot->_isChild())
+			return;
 		$sUptime = time() - $bot->m_aPing["Uptime"];
 		$bot->PM(
 			$sRecipient, 
 			"I have been up for ".Misc::SecondsToString($sUptime)
 		);		
+	}
+
+	public function help($bot, $sUser, $sRecipient, $aParams, $sIdent)
+	{
+		if($bot->_isChild())
+			return;
+		if(count($aParams) < 1) {
+			$bot->Say($sRecipient, "[b][color=red]Syntax:[/color][/b] !help (command)");
+		} else {
+			$key = NULL;
+			$key = (object)$key;
+			if($this->Handler->_commandExists($aParams[0], $key)) {	
+				if(Privileges::GetUserPrivilege($sUser, $sRecipient) >= $this->Handler->_getCommandPermission($key->index) || Privileges::IsBotAdmin($sIdent)) {
+					$bot->Say($sRecipient, '[b]Command:[/b] '.$aParams[0]);
+					$bot->Say($sRecipient, '-> '.$this->Handler->_getCommandDescription($key->index));
+				}
+			} else {
+				$bot->Say($sRecipient, "[b][color=red]Error:[/color][/b] Command: `".$aParams[0]."` does not exist!");
+			}
+		}
+		
 	}
 
 }	

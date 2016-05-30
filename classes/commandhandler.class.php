@@ -13,7 +13,7 @@
 
 Class CommandHandler extends Singleton
 {
-	public $m_aCommands = array();
+	private $m_aCommands = array();
 	private $m_sTable;
 
 	public function __construct()
@@ -66,6 +66,16 @@ Class CommandHandler extends Singleton
 			$sRet = substr($sRet, 0, -2);	
 		return $sRet;
 	}	
+
+	public function _getCommandPermission($key)
+	{
+		return $this->m_aCommands[$key]['privilege'];
+	}
+
+	public function _getCommandDescription($key)
+	{
+		return $this->m_aCommands[$key]['description'];
+	}
 
 	private function _getPermission($privilege)
 	{
