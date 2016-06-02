@@ -110,7 +110,7 @@ Class Bot implements RawEvents, ColorCodes
 	{
 		if($this->_isConnected()) {
 			$this->_disconnect($this->m_aBotInfo['Quit']);
-			$this->_connect();
+			$this->_install();
 			return true;
 		}
 		return false;	
